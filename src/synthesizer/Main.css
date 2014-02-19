@@ -1,0 +1,64 @@
+/* 
+    Document   : Main
+    Created on : Feb 5, 2014, 3:20:01 PM
+    Author     : se413006
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.root{
+    -fx-font-size: 14pt;
+    -fx-font-family: "Tahoma";
+    
+    
+    
+    background-color: black;
+}
+
+.loadButton{
+    
+    -fx-background-color: #123456;
+    color:azure;
+    
+}
+
+#border{
+    -fx-background-color: black;
+    
+    
+    
+}
+#scrollwindow  {
+   -fx-background-image: url("dark-metal-texture.jpg");
+    z-index: -10000;
+    padding: 0;
+    
+    
+}
+.slider  {
+   
+    -fx-base: rgba(85,85,85,0.5);
+    
+}
+
+
+.slider *.thumb {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 84 53 0 0;
+    -fx-background-image: url("thumb.png");
+}
+
+.chart-series-line {    
+    -fx-stroke-width: 1px;
+    -fx-effect: null;
+    -fx-stroke: dodgerblue;
+    
+}
+
+.chart-content {
+    -fx-padding: 10px;
+       
+}
+
