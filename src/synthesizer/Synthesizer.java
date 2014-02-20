@@ -1,11 +1,6 @@
 package synthesizer;
 
-import JSndObj.ADSR;
-import JSndObj.HammingTable;
-import JSndObj.IFGram;
-import JSndObj.SinAnal;
-import JSndObj.SndIn;
-import JSndObj.SndWave;
+import JSndObj.*;
 import com.javafx.experiments.scenicview.ScenicView;
 import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 import java.io.ByteArrayOutputStream;
@@ -77,8 +72,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
 public class Synthesizer extends Application {
-
-    static {
+        static {
         try {
             System.load("/home/se413006/sndobj-sndobj/lib/libsndobj.so.2.6.5");
             // System.loadLibrary("lib_jsndobj.so");
@@ -87,9 +81,11 @@ public class Synthesizer extends Application {
             System.exit(1);
         }
     }
-    /**
-     * *****************Line Chart*******************
-     */
+    
+        
+    
+    
+    /*******************Line Chart********************/
     private static final int MAX_DATA_POINTS = 150;
     // series of datapoints
     private Series series;
@@ -99,9 +95,8 @@ public class Synthesizer extends Application {
     private Timeline timeline2;
     NumberAxis xAxis;
     private int xSeriesData = 0;
-    /**
-     * *************************************
-     */
+    /****************************************/
+    
     Oscillators additive;
     double freq1;
     double sampleRate;
@@ -131,31 +126,19 @@ public class Synthesizer extends Application {
     TextField fNameFldAmp;
     Button play;
     double[] temp;
-    long[] totalWav = new long[2000];
-    ArrayList<Float> temporyHolderToTestIfFrequencysExists = new ArrayList();
-    ArrayList<Float> temporyHolderToTestIfAmplitudeExists = new ArrayList();
-    File selectedFile;
-    // String Filepath;
-    String file; 
     SinAnal sinus;
     SndIn insound;
     HammingTable win;
     IFGram ifgram;
-    
-    
-
+    SndWave input;
+    int decimation = 512;
+    int fftsize = 512;
+    long[] totalWav = new long[2000];
+    ArrayList<Float> temporyHolderToTestIfFrequencysExists = new ArrayList();
+    ArrayList<Float> temporyHolderToTestIfAmplitudeExists = new ArrayList();
     public void start(final Stage primaryStage) {
         try {
-
-
-            int decimation = 512;
-            int fftsize = 512;
-            //   HarmTable table = new HarmTable(totalWav.length, 1, 1);
-
-
-
-
-
+             
 
             // single sinusoid
             single = new Oscillators(441, 44100, 1, 1);
@@ -175,21 +158,17 @@ public class Synthesizer extends Application {
             BorderPane borderPane = new BorderPane();
             borderPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             borderPane.setId("border");
-
+            
             TitledPane tp = new TitledPane("Piano", new Button("Button"));
             tp.setId("dropDownPiano");
-
-            /**
-             * ********ADSR piano borderPane*****************
-             */
+            
+            /**********ADSR piano borderPane******************/
             VBox ADSRPianoPane = new VBox();
             ADSRPianoPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             ADSRPianoPane.setId("ADSRP");
 
-
-            /**
-             * *******Hbox Slider***********
-             */
+            
+            /*********Hbox Slider************/
             hBoxSlider = new HBox();
             hBoxSlider.setPadding(new Insets(15, 12, 15, 12));
             hBoxSlider.setSpacing(10);
@@ -206,87 +185,87 @@ public class Synthesizer extends Application {
             String css = url.toExternalForm();
             scene.getStylesheets().add(css);
             
-            
-            
-            
-            
-            SndWave input = new SndWave(file, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
-            ArrayList<Float> harmonicSettings = new ArrayList(100);
-            ArrayList<Float> frequencyList = new ArrayList<>();
-            insound = new SndIn(input, (short) 1, decimation);
-            win = new HammingTable(fftsize, 0.5f);
-            ifgram = new IFGram(win, insound, 1.f, fftsize, decimation);
-            sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
-            ADSR adsr = new ADSR(10, 1000f, 10, 10, 10, 10, insound);
-
-            loadOsc = new Button();
-            loadOsc.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-
-                    freq1 = Integer.parseInt(fNameFldAmp.getText());
-                    amp = Integer.parseInt(fNameFld.getText());
-                    int frequencyCounter = 1;
-               while (sinus.Output(frequencyCounter) != 0f && frequencyCounter * 100 < (Integer.MAX_VALUE - 1)) {
-
-                //		
-                temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
-                temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
-
-
-
-                if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
-                    addOscillator(sinus.Output(frequencyCounter), sinus.Output(frequencyCounter - 1));
-                    
-                 }
-                frequencyCounter = frequencyCounter + 3;
-                }
-                    // add oscillator objects to arraylist
-                    
-
-
-
-                    if (!oscList.isEmpty()) {
-
-                        System.out.print(oscList.size());
-                        System.out.print(oscList.get(oscList.size() - 1).getFreq());
-
-                        //   StdAudio.play(oscList.get(oscList.size()-1).output());
-                    }
-                }
-            });
-            
             loadBtn = new Button();
             loadBtn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     //LoadDialog.loadPlayList(playList, primaryStage);
                     File selectedFile = fileChooser.showOpenDialog(primaryStage);
-                    file = new String(fileChooser.getInitialFileName());
+                    String file = selectedFile.getAbsolutePath();
                     if (selectedFile != null) {
+                        
+                        file = selectedFile.getAbsolutePath();
+                        input = new SndWave(file, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
+                        insound = new SndIn(input, (short) 1, decimation);
+                        win = new HammingTable(fftsize, 0.5f);
+                        ifgram = new IFGram(win, insound, 1.f, fftsize, decimation);
+                        sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
+                       
+                        for (int i = 0; i < (int) (totalWav.length / decimation); i++) {
 
-                        inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
+                            insound.DoProcess();
+                            ifgram.DoProcess();
+                            sinus.DoProcess();
 
-                        // stdAudio.save("sin_Wave", single.output());
-                        //  fftValues = fft(single.output());
-                        //  abs = magnitude(getrealVal(fftValues), getimagVal(fftValues));
-                        //   fftShi = fftShift(abs);
-                        //   for (int i = 0; i < abs.length; i++) {
+                        }
+                        
+                       // inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
+                       // stdAudio.save("sin_Wave", single.output());
+                      //  fftValues = fft(single.output());
+                      //  abs = magnitude(getrealVal(fftValues), getimagVal(fftValues));
+                     //   fftShi = fftShift(abs);
+                     //   for (int i = 0; i < abs.length; i++) {
 
-                        //       System.out.println(fftShi[i]);
-                        //   }
+                     //       System.out.println(fftShi[i]);
+                    //   }
                     }
                 }
             });
             
 
-            for (int i = 0; i < (int) (totalWav.length / decimation); i++) {
+            loadOsc = new Button();
+            loadOsc.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
 
-                insound.DoProcess();
-                ifgram.DoProcess();
-                sinus.DoProcess();
-                adsr.DoProcess();
-             }
+                    int frequencyCounter = 1;
+                    while (sinus.Output(frequencyCounter) != 0f && frequencyCounter * 100 < (Integer.MAX_VALUE - 1)) {
+
+            		
+                    temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
+                    temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
+
+
+
+            if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
+                //   System.out.println("freq     "+sinus.Output(frequencyCounter));
+                //   System.out.println("amp     "+sinus.Output(frequencyCounter-1));
+                //   System.out.println("phase     "+sinus.Output(frequencyCounter-2));
+                               
+              addOscillator((double)sinus.Output(frequencyCounter), (int)sinus.Output(frequencyCounter-1));
+            }
+            frequencyCounter = frequencyCounter + 3;
+        }
+                    
+                 //   freq1 = Integer.parseInt(fNameFldAmp.getText());
+                  //  amp = Integer.parseInt(fNameFld.getText());
+
+                    // add oscillator objects to arraylist
+                   // addOscillator(freq1, amp);
+
+
+
+                    if (!oscList.isEmpty()) {
+
+                        System.out.print("Oscillator list size   "+oscList.size());
+                        System.out.print("          freq"+oscList.get(oscList.size() - 1).getFreq());
+
+                        //   StdAudio.play(oscList.get(oscList.size()-1).output());
+                    }
+                }
+            });
+
+            
 
             play = new Button();
             play.setText("play'");
@@ -297,29 +276,25 @@ public class Synthesizer extends Application {
                         // array to hold oscillators from oscList
                         temp = synthesisOsc(oscList);
                        // executor.execute(addToQueue);
-                          StdAudio.play(temp);
-
-                        //  System.out.println(temp.length);
+                       StdAudio.play(temp);
+                        
+                      //  System.out.println(temp.length);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-
-
-
-            /**
-             * ************************Line Chart***************************
-             */
-            NumberAxis yAxis = new NumberAxis(-1.1, 1.1, .1);
-            xAxis = new NumberAxis(-1, MAX_DATA_POINTS, MAX_DATA_POINTS / 10);
+            
+            
+            
+            /**************************Line Chart****************************/
+            NumberAxis yAxis = new NumberAxis(-1.1,1.1,.1);
+             xAxis = new NumberAxis(-1,MAX_DATA_POINTS,MAX_DATA_POINTS/10);
             xAxis.setTickLabelGap(.1);
             final LineChart<Number, Number> sc = new LineChart<Number, Number>(xAxis, yAxis) {
-                // Override to remove symbols on each data point
-                @Override
-                protected void dataItemAdded(Series<Number, Number> series, int itemIndex, Data<Number, Number> item) {
-                }
-            };
+            // Override to remove symbols on each data point
+            @Override protected void dataItemAdded(Series<Number, Number> series, int itemIndex, Data<Number, Number> item) {}
+        };
             sc.setAnimated(false);
             sc.setId("liveAreaChart");
             sc.setTitle("Animated Area Chart");
@@ -331,24 +306,18 @@ public class Synthesizer extends Application {
             addToQueue = new AddToQueue();
             //-- Prepare Timeline
             prepareTimeline();
-            /**
-             * *************************End******************************
-             */
-            /**
-             * ****************************SND******************************
-             */
+            /***************************End*******************************/
             
-
-               
-
-
+            
+            
+            
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
             borderPane.setLeft(sc);
             // borderPane.setCenter(root);
             //borderPane.setRight(br);
             borderPane.setBottom(addScrollPane());
-            root.getChildren().addAll(borderPane, ADSRPianoPane);
+            root.getChildren().addAll(borderPane,ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
             primaryStage.setScene(scene);
             primaryStage.show();
@@ -362,10 +331,10 @@ public class Synthesizer extends Application {
         launch(args);
     }
 
-    public void addOscillator(float _freq1, float _amp) {
+    public void addOscillator(double _freq1, int _amp) {
 
         // add oscillators to oscList :observableArrayList()  
-        oscList.add(new Oscillators(_freq1, 44100, 10, (int) _amp, new Slider(0, 5000, freq1), new Label()));
+        oscList.add(new Oscillators(_freq1, 44100, 10, _amp, new Slider(0, 5000, freq1), new Label()));
 
         if (!oscList.isEmpty()) {
 
@@ -426,7 +395,7 @@ public class Synthesizer extends Application {
         return additiveTemp;
     }
 
-    public static double[] fft(double[] input) {
+  /*  public static double[] fft(double[] input) {
 
         DoubleFFT_1D fftDo = new DoubleFFT_1D(input.length);
         double[] fft = new double[input.length * 2];
@@ -484,6 +453,7 @@ public class Synthesizer extends Application {
         }
         return x;
     }
+    * */
 
     public HBox addHBoxTop() {
 
@@ -537,31 +507,29 @@ public class Synthesizer extends Application {
         return scrollWindow;
 
     }
-
-    /**
-     * ********************Line Methods************************
-     */
+    
+    
+    /**********************Line Methods*************************/
     private class AddToQueue implements Runnable {
-
         public void run() {
             try {
                 Random random = new Random();
                 int someInt = random.nextInt(3) - 1;
-
-
-                //  for (int i = 0; i < temp.length/1000; i++) {
-
-
-
-                dataQ.add(someInt);
-                //  System.out.println(temp[i]);
-
-
-                // }
+                
+                
+              //  for (int i = 0; i < temp.length/1000; i++) {
+                    
+                        
+                
+                    dataQ.add(someInt);
+                 //  System.out.println(temp[i]);
+                
+                
+             // }
                 Thread.sleep(50);
-
+                
                 executor.execute(this);
-
+                
             } catch (InterruptedException ex) {
                 Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -572,8 +540,7 @@ public class Synthesizer extends Application {
     private void prepareTimeline() {
         // Every frame to take any data from queue and add to chart
         new AnimationTimer() {
-            @Override
-            public void handle(long now) {
+            @Override public void handle(long now) {
                 addDataToSeries();
             }
         }.start();
@@ -581,9 +548,7 @@ public class Synthesizer extends Application {
 
     private void addDataToSeries() {
         for (int i = 0; i < 5; i++) { //-- add 20 numbers to the plot+
-            if (dataQ.isEmpty()) {
-                break;
-            }
+            if (dataQ.isEmpty()) break;
             series.getData().add(new LineChart.Data(xSeriesData++, dataQ.remove()));
         }
         // remove points to keep us at no more than MAX_DATA_POINTS
@@ -591,10 +556,11 @@ public class Synthesizer extends Application {
             series.getData().remove(0, series.getData().size() - MAX_DATA_POINTS);
         }
         // update 
-        xAxis.setLowerBound(xSeriesData - MAX_DATA_POINTS);
-        xAxis.setUpperBound(xSeriesData - 1);
+        xAxis.setLowerBound(xSeriesData-MAX_DATA_POINTS);
+        xAxis.setUpperBound(xSeriesData-1);
     }
-    /**
-     * **********************EndLineMethods************************
-     */
+    /************************EndLineMethods*************************/
+    
+    
+   
 }
