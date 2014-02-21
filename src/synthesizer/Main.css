@@ -5,19 +5,23 @@
     Description:
         Purpose of the stylesheet follows.
 */
-
+.scene {
+    background-color: black;
+    
+    
+}
 .root{
     -fx-font-size: 14pt;
     -fx-font-family: "Tahoma";
     
     
     
-    background-color: black;
+    -fx-background-color: black;
 }
 
 .loadButton{
     
-    -fx-background-color: #123456;
+    -fx-background-color: black;
     color:azure;
     
 }
@@ -29,7 +33,7 @@
     
 }
 #scrollwindow  {
-   -fx-background-image: url("dark-metal-texture.jpg");
+  
     z-index: -10000;
     padding: 0;
     
@@ -37,7 +41,7 @@
 }
 .slider  {
    
-    -fx-base: rgba(85,85,85,0.5);
+  
     
 }
 
@@ -48,6 +52,12 @@
     -fx-background-insets: 0;
     -fx-padding: 84 53 0 0;
     -fx-background-image: url("thumb.png");
+}
+
+.slider:hover  {
+    
+      box-shadow: 40px 40px 40px white;
+    
 }
 
 .chart-series-line {    
