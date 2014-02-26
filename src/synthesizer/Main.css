@@ -7,42 +7,59 @@
 */
 .scene {
     background-color: black;
+
+
+}
+
+.label{
+    
+    color: white;
+    tab-size: 16px;
     
     
 }
 .root{
-    -fx-font-size: 14pt;
-    -fx-font-family: "Tahoma";
-    
-    
-    
+    font-size: 15pt;
+    font-family: serif;
+    color: white;
+
+
     -fx-background-color: black;
 }
 
-.loadButton{
-    
-    -fx-background-color: black;
-    color:azure;
-    
+#hBoxTop{
+
+
+
+}
+
+
+#loadFile{
+
+
+
+}
+#loadFile {
+
 }
 
 #border{
-    -fx-background-color: black;
-    
-    
-    
+
+
+
+
 }
 #scrollwindow  {
-  
+
     z-index: -10000;
     padding: 0;
-    
-    
+    -fx-background-color: black;
+
 }
 .slider  {
-   
-  
-    
+
+
+
 }
 
 
@@ -54,21 +71,25 @@
     -fx-background-image: url("thumb.png");
 }
 
-.slider:hover  {
-    
-      box-shadow: 40px 40px 40px white;
-    
+slider:hover *.thumb  {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 84 53 0 0;
+    -fx-background-image: url("thumb.png");
+   
+
 }
 
 .chart-series-line {    
     -fx-stroke-width: 1px;
     -fx-effect: null;
     -fx-stroke: dodgerblue;
-    
+
 }
 
 .chart-content {
     -fx-padding: 10px;
-       
+
 }
 

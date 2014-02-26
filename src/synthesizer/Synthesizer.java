@@ -68,6 +68,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -134,15 +135,21 @@ public class Synthesizer extends Application {
     IFGram ifgram;
     SndWave input;
     int decimation = 512;
-    int fftsize = 512;
-    long[] totalWav = new long[2000];
+    int fftsize = 2048;
+    long[] totalWav = new long[44100];
     ArrayList<Float> temporyHolderToTestIfFrequencysExists = new ArrayList();
     ArrayList<Float> temporyHolderToTestIfAmplitudeExists = new ArrayList();
     String file;
+    Button sine;
+    Button formant;
+    Button saw;
+    Button square;
+    Button triangle;
+    Button other;
     
     public void start(final Stage primaryStage) {
         try {
-
+             
 
           //  // single sinusoid
           //  single = new Oscillators(441, 44100, 1, 1);
@@ -203,21 +210,49 @@ public class Synthesizer extends Application {
                     //LoadDialog.loadPlayList(playList, primaryStage);
                     File selectedFile = fileChooser.showOpenDialog(primaryStage);
                     file = selectedFile.getAbsolutePath();
-                    fileName = selectedFile.getName();
-                    fileLabel = new Label();
-                    fileLabel.setText(fileName);
+                    
                     
                     if (selectedFile != null) {
 
+                      //  fileName = selectedFile.getName();
                         
                         //  file = new String("/home/se413006/Desktop/project/Samples/sine3harms.wav");
        
-                        input = new SndWave(file, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
-                        insound = new SndIn(input, (short) 1, decimation);
-                        win = new HammingTable(fftsize, 0.5f);
-                        ifgram = new IFGram(win, insound, 1.f, fftsize, decimation);
-                        sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
-                        
+                     /*   int hop = 512;
+                        SndWave input = new SndWave(file, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
+                        SndIn insound = new SndIn(input, (short) 1, decimation,44100);
+                        HammingTable win = new HammingTable(fftsize, 0.5f);
+                        IFGram ifgram = new IFGram(win, insound, 1.f, fftsize,hop);
+                        SinAnal sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
+                        int tlen=Math.round(totalWav.length/hop);
+                        for (int i = 0; i < tlen; i++) {
+
+                            insound.DoProcess();
+                            ifgram.DoProcess();
+                            sinus.DoProcess();
+                         
+                           System.out.println(" " + i + " " + sinus.Output(0) + " " + sinus.Output(1) + " " + sinus.Output(2));
+                            
+                        }
+                         int frequencyCounter = 1;
+        while (sinus.Output(frequencyCounter) != 0f && frequencyCounter < 50) { //* 100 < (Integer.MAX_VALUE - 1)) {
+
+            //		
+            temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
+            temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
+
+
+
+            if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
+                   System.out.print("freq "+sinus.Output(frequencyCounter));
+                   System.out.print(" amp "+sinus.Output(frequencyCounter-1));
+                   System.out.println(" phase  "+sinus.Output(frequencyCounter-2));
+                                        
+                   
+            }
+            frequencyCounter = frequencyCounter + 3;
+        }*/
+                      //  System.out.println(input.GetVectorSize());
                         
                         
 
@@ -242,51 +277,21 @@ public class Synthesizer extends Application {
                     
                     
 
-                    //   freq1 = Integer.parseInt(fNameFldAmp.getText());
-                    //  amp = Integer.parseInt(fNameFld.getText());
+                       freq1 = Integer.parseInt(fNameFldAmp.getText());
+                       amp = Integer.parseInt(fNameFld.getText());
 
                     // add oscillator objects to arraylist
                      
-                    for (int i = 0; i < (int) (totalWav.length / decimation); i++) {
+                       addOscillator(freq1,amp);
 
-                            insound.DoProcess();
-                            ifgram.DoProcess();
-                            sinus.DoProcess();
-                            System.out.println(" " + i + " " + sinus.Output(1) + " " + sinus.Output(2) + " " + sinus.Output(3));
-                        }
-                    
-                    int frequencyCounter = 1;
-                    while (sinus.Output(frequencyCounter) != 0f && frequencyCounter * 100 < (Integer.MAX_VALUE - 1)) {
-
-            //		
-            
-            temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
-            temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
-
-
-
-            if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
-                   System.out.println("freq     "+sinus.Output(frequencyCounter));
-                   System.out.println("amp     "+sinus.Output(frequencyCounter-1));
-                   System.out.println("phase     "+sinus.Output(frequencyCounter-2));
-                                        
-                   
-            }
-            
-            frequencyCounter = frequencyCounter + 3;
-           
-        }
-                     
-                     addOscillator(sinus.Output(frequencyCounter), (int)sinus.Output(frequencyCounter - 1));
-
-                    if (!oscList.isEmpty()) {
+                /*    if (!oscList.isEmpty()) {
                        
                         System.out.print("Oscillator list size   " + oscList.size());
                         System.out.print("          freq" + oscList.get(oscList.size() - 1).getFreq());
 
-                        //   StdAudio.play(oscList.get(oscList.size()-1).output());
+                         //  StdAudio.play(oscList.get(oscList.size()-1).output());
                     }
-                }
+*/                }
             });
 
 
@@ -337,11 +342,106 @@ public class Synthesizer extends Application {
             /**
              * *************************End******************************
              */
+            
+            /***********************WAVE types**************************/
+            GridPane waveformTile = new GridPane();
+            
+            
+            waveformTile.setHgap(5);
+            waveformTile.setVgap(5);
+           // waveformTile.setPadding(new Insets(0, 10, 0, 10));
+            
+            
+            
+            
+            sine = new Button();
+            sine.setText("sine'");
+            sine.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(sine, 0, 0);
+            formant = new Button();
+            formant.setText("formant");
+            formant.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(formant, 0, 1);
+            square = new Button();
+            square.setText("square");
+            square.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(square, 0, 2);
+            saw = new Button();
+            saw.setText("saw");
+            saw.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(saw, 2, 0);
+            triangle = new Button();
+            triangle.setText("triangle");
+            triangle.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(triangle, 2, 1);
+            other = new Button();
+            other.setText("sine'");
+            other.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(other, 2, 2);
+            
+            
+            
+   
+           // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
             borderPane.setLeft(sc);
-            //borderPane.setCenter(root);
-            //borderPane.setRight(br);
+            borderPane.setCenter(waveformTile);
+          //  borderPane.setRight(sc);
             borderPane.setBottom(addScrollPane());
             root.getChildren().addAll(borderPane, ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
@@ -373,6 +473,7 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.setBlockIncrement(20);
             oscList.get(oscList.size() - 1).s.maxHeight(100);
             oscList.get(oscList.size() - 1).s.minWidth(30);
+          
 
 
 
@@ -485,12 +586,14 @@ public class Synthesizer extends Application {
         HBox hbox = new HBox();
         hbox.setPadding(new Insets(15, 12, 15, 12));
         hbox.setSpacing(10);
-        hbox.setStyle("-fx-background-color: #336699;");
-
+        hbox.setId("hBoxTop");
+        
         fNameLblAmp = new Label("Amp");
         fNameFldAmp = new TextField();
         fNameLbl = new Label("Frequency");
         fNameFld = new TextField();
+        
+       
         
         loadOsc.getStyleClass().add("button");
         loadOsc.setId("addOsc");
@@ -503,6 +606,8 @@ public class Synthesizer extends Application {
 
         return hbox;
     }
+    
+   
 
     private MenuBar getMenu() {
 
