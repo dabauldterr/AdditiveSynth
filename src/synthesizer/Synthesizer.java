@@ -277,24 +277,16 @@ public class Synthesizer extends Application {
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    
-                    
-                       
-                       freq1 = Integer.parseInt(fNameFldAmp.getText());
-                       amp = Integer.parseInt(fNameFld.getText());
+                
 
-                    // add oscillator objects to arraylist
-                     
-                       addOscillator(freq1,amp);
-
-                /*    if (!oscList.isEmpty()) {
+                    if (!oscList.isEmpty()) {
                        
                         System.out.print("Oscillator list size   " + oscList.size());
                         System.out.print("          freq" + oscList.get(oscList.size() - 1).getFreq());
 
                          //  StdAudio.play(oscList.get(oscList.size()-1).output());
                     }
-*/                }
+                }
             });
 
 
@@ -363,8 +355,12 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
-                    } catch (Exception ex) {
+                        
+                        freq1 = Integer.parseInt(fNameFldAmp.getText());
+                        amp = Integer.parseInt(fNameFld.getText());
+                        addOscillator(freq1,amp);
+                        
+                        } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
