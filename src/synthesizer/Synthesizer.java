@@ -564,7 +564,7 @@ public class Synthesizer extends Application {
 
 
         for (int i = 0; i < l.size(); i++) {
-            double[] temp = l.get(i).output();
+            double[] temp = l.get(i).sine();
             for (int j = 0; j < additiveTemp.length; j++) {
 
                 additiveTemp[j] = additiveTemp[j] + temp[j];
@@ -577,65 +577,7 @@ public class Synthesizer extends Application {
         return additiveTemp;
     }
 
-    /*  public static double[] fft(double[] input) {
-
-     DoubleFFT_1D fftDo = new DoubleFFT_1D(input.length);
-     double[] fft = new double[input.length * 2];
-     System.arraycopy(input, 0, fft, 0, input.length);
-     fftDo.complexForward(fft);
-     //fftDo.
-     for (double d : fft) {
-     //  System.out.println("ff values"+d);
-     }
-     return fft;
-
-     }
-
-     public static double[] getrealVal(double[] d) {
-     int ptr = 0;
-     double[] real = new double[d.length / 2];
-     for (int i = 0; i < d.length; i += 2) {
-     real[ptr] = d[i];
-     //  System.out.println("real values"+real[ptr]);
-     ptr++;
-     }
-     return real;
-     }
-
-     public static double[] getimagVal(double[] d) {
-     int ptr = 0;
-     double[] real = new double[d.length / 2];
-     for (int i = 1; i < d.length; i += 2) {
-     real[ptr] = d[i];
-     //  System.out.println("imaginary values"+real[ptr]);
-     ptr++;
-     }
-     return real;
-     }
-
-     public static double[] magnitude(double[] r, double[] im) {
-     double[] result = new double[r.length];
-
-     for (int i = 0; i < result.length; i++) {
-     result[i] = Math.sqrt(((r[i]) * r[i]) + (im[i] * im[i]));
-     }
-
-     return result;
-     }
-
-     public static double[] fftShift(double[] x) {
-     double[] temp = new double[x.length];
-     for (int i = 0; i < x.length; i++) { //make temp array with same contents as x
-     temp[i] = x[i];
-     }
-
-     for (int i = 0; i < x.length / 2; i++) {
-     x[i] = temp[x.length / 2 + i];
-     x[x.length / 2 + i] = temp[i];
-     }
-     return x;
-     }
-     * */
+   
     public HBox addHBoxTop() {
 
         HBox hbox = new HBox();
@@ -752,4 +694,64 @@ public class Synthesizer extends Application {
     /**
      * **********************EndLineMethods************************
      */
+     /*  public static double[] fft(double[] input) {
+
+     DoubleFFT_1D fftDo = new DoubleFFT_1D(input.length);
+     double[] fft = new double[input.length * 2];
+     System.arraycopy(input, 0, fft, 0, input.length);
+     fftDo.complexForward(fft);
+     //fftDo.
+     for (double d : fft) {
+     //  System.out.println("ff values"+d);
+     }
+     return fft;
+
+     }
+
+     public static double[] getrealVal(double[] d) {
+     int ptr = 0;
+     double[] real = new double[d.length / 2];
+     for (int i = 0; i < d.length; i += 2) {
+     real[ptr] = d[i];
+     //  System.out.println("real values"+real[ptr]);
+     ptr++;
+     }
+     return real;
+     }
+
+     public static double[] getimagVal(double[] d) {
+     int ptr = 0;
+     double[] real = new double[d.length / 2];
+     for (int i = 1; i < d.length; i += 2) {
+     real[ptr] = d[i];
+     //  System.out.println("imaginary values"+real[ptr]);
+     ptr++;
+     }
+     return real;
+     }
+
+     public static double[] magnitude(double[] r, double[] im) {
+     double[] result = new double[r.length];
+
+     for (int i = 0; i < result.length; i++) {
+     result[i] = Math.sqrt(((r[i]) * r[i]) + (im[i] * im[i]));
+     }
+
+     return result;
+     }
+
+     public static double[] fftShift(double[] x) {
+     double[] temp = new double[x.length];
+     for (int i = 0; i < x.length; i++) { //make temp array with same contents as x
+     temp[i] = x[i];
+     }
+
+     for (int i = 0; i < x.length / 2; i++) {
+     x[i] = temp[x.length / 2 + i];
+     x[x.length / 2 + i] = temp[i];
+     }
+     return x;
+     }
+     * */
+    
 }

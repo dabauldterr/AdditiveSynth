@@ -123,7 +123,7 @@ public class Oscillators {
     }
     
 
-    public double[] output() {
+    public double[] sine() {
 
 
         double[] wave = new double[timeSamp];
