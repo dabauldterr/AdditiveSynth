@@ -148,7 +148,7 @@ public class Synthesizer extends Application {
     Button pwm;
     Button triangleShift;
     Button sawTriangle;
-    Button tapezoid;
+    Button trapezoid;
     Button pwmShift; 
     public void start(final Stage primaryStage) {
         try {
@@ -408,7 +408,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(saw, 2, 0);
+            waveformTile.add(saw, 0, 3);
             triangle = new Button();
             triangle.setText("triangle");
             triangle.setOnAction(new EventHandler<ActionEvent>() {
@@ -421,9 +421,9 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(triangle, 2, 1);
+            waveformTile.add(triangle, 0, 4);
             pwm = new Button();
-            pwm.setText("pwm'");
+            pwm.setText("pwm");
             pwm.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -434,7 +434,59 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(other, 2, 2);
+            waveformTile.add(pwm, 1, 0);
+            pwmShift = new Button();
+            pwmShift.setText("pwmShift");
+            pwmShift.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(pwmShift, 1, 1);
+            triangleShift = new Button();
+            triangleShift.setText("triangleShift");
+            triangleShift.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(triangleShift, 1, 2);
+            sawTriangle = new Button();
+            sawTriangle.setText("sawTriangle");
+            sawTriangle.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(sawTriangle, 1, 3);
+            trapezoid = new Button();
+            trapezoid.setText("trapezoid");
+            trapezoid.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(trapezoid, 1, 4);
             
             
             
