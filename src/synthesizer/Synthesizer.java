@@ -111,10 +111,6 @@ public class Synthesizer extends Application {
     double[] inputFileScaled;
     byte[] inputFileBytes;
     double[] buffer;
-    double[] abs;
-    double[] fftShi;
-    double[] fftValues;
-    private int BUFFER_LENGTH;
     Oscillators single;
     Button loadBtn;
     Button loadOsc;
@@ -129,16 +125,6 @@ public class Synthesizer extends Application {
     String fileName;
     Button play;
     double[] temp;
-    SinAnal sinus;
-    SndIn insound;
-    HammingTable win;
-    IFGram ifgram;
-    SndWave input;
-    int decimation = 512;
-    int fftsize = 2048;
-    long[] totalWav = new long[44100];
-    ArrayList<Float> temporyHolderToTestIfFrequencysExists = new ArrayList();
-    ArrayList<Float> temporyHolderToTestIfAmplitudeExists = new ArrayList();
     String file;
     Button sine;
     Button formant;
@@ -152,11 +138,7 @@ public class Synthesizer extends Application {
     Button pwmShift; 
     public void start(final Stage primaryStage) {
         try {
-             
-
-          //  // single sinusoid
-          //  single = new Oscillators(441, 44100, 1, 1);
-            // collection of oscillators
+          
             additive = new Oscillators();
             sampleRate = 44100;
             time = 1;
@@ -176,8 +158,6 @@ public class Synthesizer extends Application {
             TitledPane tp = new TitledPane("Piano", new Button("Button"));
             tp.setId("dropDownPiano");
 
-            
-           
             
             /**
              * ********ADSR piano borderPane*****************
@@ -213,63 +193,7 @@ public class Synthesizer extends Application {
                     //LoadDialog.loadPlayList(playList, primaryStage);
                     File selectedFile = fileChooser.showOpenDialog(primaryStage);
                     file = selectedFile.getAbsolutePath();
-                    
-                    
-                    if (selectedFile != null) {
-
-                      //  fileName = selectedFile.getName();
-                        
-                        //  file = new String("/home/se413006/Desktop/project/Samples/sine3harms.wav");
-       
-                     /*   int hop = 512;
-                        SndWave input = new SndWave(file, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
-                        SndIn insound = new SndIn(input, (short) 1, decimation,44100);
-                        HammingTable win = new HammingTable(fftsize, 0.5f);
-                        IFGram ifgram = new IFGram(win, insound, 1.f, fftsize,hop);
-                        SinAnal sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
-                        int tlen=Math.round(totalWav.length/hop);
-                        for (int i = 0; i < tlen; i++) {
-
-                            insound.DoProcess();
-                            ifgram.DoProcess();
-                            sinus.DoProcess();
-                         
-                           System.out.println(" " + i + " " + sinus.Output(0) + " " + sinus.Output(1) + " " + sinus.Output(2));
-                            
-                        }
-                         int frequencyCounter = 1;
-        while (sinus.Output(frequencyCounter) != 0f && frequencyCounter < 50) { //* 100 < (Integer.MAX_VALUE - 1)) {
-
-            //		
-            temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
-            temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
-
-
-
-            if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
-                   System.out.print("freq "+sinus.Output(frequencyCounter));
-                   System.out.print(" amp "+sinus.Output(frequencyCounter-1));
-                   System.out.println(" phase  "+sinus.Output(frequencyCounter-2));
-                                        
-                   
-            }
-            frequencyCounter = frequencyCounter + 3;
-        }*/
-                      //  System.out.println(input.GetVectorSize());
-                        
-                        
-
-                        // inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
-                        // stdAudio.save("sin_Wave", single.output());
-                        //  fftValues = fft(single.output());
-                        //  abs = magnitude(getrealVal(fftValues), getimagVal(fftValues));
-                        //   fftShi = fftShift(abs);
-                        //   for (int i = 0; i < abs.length; i++) {
-
-                        //       System.out.println(fftShi[i]);
-                        //   }
                     }
-                }
             });
 
 
@@ -277,19 +201,13 @@ public class Synthesizer extends Application {
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                
-
                     if (!oscList.isEmpty()) {
-                       
                         System.out.print("Oscillator list size   " + oscList.size());
                         System.out.print("          freq" + oscList.get(oscList.size() - 1).getFreq());
-
-                         //  StdAudio.play(oscList.get(oscList.size()-1).output());
+                        //  StdAudio.play(oscList.get(oscList.size()-1).output());
                     }
                 }
             });
-
-
 
             play = new Button();
             play.setText("play'");
@@ -512,7 +430,7 @@ public class Synthesizer extends Application {
 
         // add oscillators to oscList :observableArrayList()  
         oscList.add(new Oscillators(_freq1, 44100, 10, _amp, new Slider(0, 5000, freq1), new Label()));
-
+       
         if (!oscList.isEmpty()) {
 
             //layout for each oscillator
@@ -525,7 +443,7 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.maxHeight(100);
             oscList.get(oscList.size() - 1).s.minWidth(30);
           
-
+        }
 
 
             //add sliders to v box in scroll pane
@@ -543,7 +461,7 @@ public class Synthesizer extends Application {
             });
             hBoxSlider.getChildren().addAll(vbox);
 
-        }
+        
         //bind slider value to label
         new Slider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
@@ -595,7 +513,7 @@ public class Synthesizer extends Application {
         loadBtn.getStyleClass().add("button");
         loadBtn.setId("loadFile");
         loadBtn.setText("load audio file'");
-        hbox.getChildren().addAll(getMenu(), loadBtn, loadOsc, play,fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
+        hbox.getChildren().addAll(loadBtn, loadOsc, play,fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
 
         return hbox;
     }
