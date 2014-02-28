@@ -152,13 +152,6 @@ public class Oscillators {
         
                 return additive;
             }
- /*public  double[] addArrayOfArrays(Oscillators os, Oscillators os1){
-        
-        double[] sum = new double[44100];
-        for (int i = 0; i < sum.length; i++) {
-        
-       }
-        return sum;
-    }*/
+ 
 }
 

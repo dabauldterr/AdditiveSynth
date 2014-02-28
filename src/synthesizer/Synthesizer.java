@@ -145,8 +145,11 @@ public class Synthesizer extends Application {
     Button saw;
     Button square;
     Button triangle;
-    Button other;
-    
+    Button pwm;
+    Button triangleShift;
+    Button sawTriangle;
+    Button tapezoid;
+    Button pwmShift; 
     public void start(final Stage primaryStage) {
         try {
              
@@ -276,7 +279,7 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     
                     
-
+                       
                        freq1 = Integer.parseInt(fNameFldAmp.getText());
                        amp = Integer.parseInt(fNameFld.getText());
 
@@ -419,9 +422,9 @@ public class Synthesizer extends Application {
                 }
             });
             waveformTile.add(triangle, 2, 1);
-            other = new Button();
-            other.setText("sine'");
-            other.setOnAction(new EventHandler<ActionEvent>() {
+            pwm = new Button();
+            pwm.setText("pwm'");
+            pwm.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
