@@ -1,23 +1,11 @@
 package synthesizer;
 
-import JSndObj.*;
-import com.javafx.experiments.scenicview.ScenicView;
-import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
-import java.io.ByteArrayOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javax.sound.sampled.Clip;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -27,7 +15,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -36,39 +23,13 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import com.javafx.experiments.scenicview.*;
-import com.sun.javafx.scene.layout.region.BackgroundImage;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javafx.animation.AnimationTimer;
-import javafx.animation.Timeline;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -95,7 +56,9 @@ public class Synthesizer extends Application {
     Thread t;
     FileChooser fileChooser;
     Slider balanceKnob;
+    //hold list of oscillator types
     ObservableList<Oscillators> oscList = FXCollections.observableArrayList();
+    // hold data about each involked oscillator
     ObservableList<Oscillators> oscBankList = FXCollections.observableArrayList();
     double[] inputFileDouble;
     double[] inputFileScaled;
@@ -126,10 +89,11 @@ public class Synthesizer extends Application {
     Button sawTriangle;
     Button trapezoid;
     Button pwmShift; 
+    Button prime;
     public void start(final Stage primaryStage) {
         try {
           
-            additive = new Oscillators();
+           // additive = new Oscillators();
             sampleRate = 44100;
             time = 1;
 
@@ -237,6 +201,7 @@ public class Synthesizer extends Application {
                         amp = Integer.parseInt(fNameFld.getText());
                         addOscillator(freq1,amp);
                         
+                        
                         } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -263,10 +228,10 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         
-                        StdAudio.play(new Oscillators().square(440,44100, 44100, 0));
-                      
                         
-                    } catch (Exception ex) {
+                       StdAudio.play(new Saw(440,44100).output());
+                                             
+                        } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -291,10 +256,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        freq1 = Integer.parseInt(fNameFldAmp.getText());
-                        amp = Integer.parseInt(fNameFld.getText());
                         
-                      
+                        
+                      oscBankList.add(new Saw(441,44100));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -313,7 +277,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(pwm, 1, 0);
+            waveformTile.add(pwm, 0, 5);
             pwmShift = new Button();
             pwmShift.setText("pwmShift");
             pwmShift.setOnAction(new EventHandler<ActionEvent>() {
@@ -326,7 +290,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(pwmShift, 1, 1);
+            waveformTile.add(pwmShift, 1, 0);
             triangleShift = new Button();
             triangleShift.setText("triangleShift");
             triangleShift.setOnAction(new EventHandler<ActionEvent>() {
@@ -339,38 +303,48 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            waveformTile.add(triangleShift, 1, 2);
+            waveformTile.add(triangleShift, 1, 1);
             sawTriangle = new Button();
             sawTriangle.setText("sawTriangle");
             sawTriangle.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        double pitch=9;
-                        double Fs=1000;
-                        int durSamps=1000;
-                        double phaseShift=Math.PI/2;
-                        double duty=0.15;
-                       oscBankList.add( new Oscillators());
+                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-            waveformTile.add(sawTriangle, 1, 3);
+            waveformTile.add(sawTriangle, 1, 2);
             trapezoid = new Button();
             trapezoid.setText("trapezoid");
             trapezoid.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
+                     // StdAudio.play(new OscillatorTypes().tr(440, 44100,0, x));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-            waveformTile.add(trapezoid, 1, 4);
+            waveformTile.add(trapezoid, 1, 3);
+            prime = new Button();
+            prime.setText("prime");
+            prime.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        int x = Integer.parseInt(fNameFldAmp.getText());
+                        
+                      StdAudio.play(new OscillatorTypes().prime(440,0, x));
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(prime, 1, 4);
             
             
             
@@ -442,7 +416,9 @@ public class Synthesizer extends Application {
         });
     }
     
-    public void oscillatorPair(){
+    public void oscillatorPair(double fhz, int durSamp){
+            
+    
     
     
     }
@@ -490,8 +466,6 @@ public class Synthesizer extends Application {
         return hbox;
     }
     
-   
-
     private MenuBar getMenu() {
 
         MenuBar menuBar = new MenuBar();
