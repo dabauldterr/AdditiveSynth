@@ -21,7 +21,7 @@ public class Oscillators {
     Label Al;
     Thread t;
 
-    //pitch frequency, sample frequebct, length, amplitude, sampling time length
+    //pitch frequency, sample rate, length in time, amplitude, 
     public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp, Slider _s, Label _l) {
         freqHz = _freqHz;
         sampFreq = _sampFreq;
@@ -40,7 +40,7 @@ public class Oscillators {
         sampFreq = _sampFreq;
         time = _time;
         amp = _amp;
-        timeSamp = (int) sampFreq * time;
+      //  timeSamp = (int) sampFreq * time;
         s = _s;
         l = _l;
         As = _As;
@@ -127,7 +127,7 @@ public class Oscillators {
         return Al;
     }
 
-    public double[] sine() {
+   public double[] output() {
 
 
         double[] wave = new double[timeSamp];
@@ -141,160 +141,6 @@ public class Oscillators {
 
     }
 
-    public double[] sawtooth(double pitch, double Fs, int durSamps, double phaseShift) {
-        double[] saw = new double[durSamps];
-        double t;
-        double timeShift;
-
-        timeShift = -phaseShift / (2 * Math.PI * pitch);
-        //System.out.println("timeshift= "+timeShift);
-        for (int index = 0; index < durSamps; index++) {
-            t = ((double) index) / Fs;
-            t = t - timeShift;
-            saw[index] = 2 * ((t * pitch) % 1) - 1;
-        }
-
-
-        return saw;
-    }
-
-    public double[] PWM(double pitch, double Fs, int durSamps, double duty) {
-        double[] PWM = new double[durSamps];
-        double[] saw1 = new double[durSamps];
-        double[] saw2 = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-        saw1 = sawtooth(pitch, Fs, durSamps, 0);
-
-        double phaseShift = 2 * Math.PI * duty;
-        saw2 = sawtooth(pitch, Fs, durSamps, phaseShift);
-        for (int index = 0; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
-
-        }
-
-
-        return PWM;
-    }
-
-    public double[] PWMshifted(double pitch, double Fs, int durSamps, double duty, double Shift) {
-        double[] PWMshift = new double[durSamps];
-        double[] saw1 = new double[durSamps];
-        double[] saw2 = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-
-        saw1 = sawtooth(pitch, Fs, durSamps, Shift);
-
-        double phaseShift = 2 * Math.PI * duty + Shift;
-        saw2 = sawtooth(pitch, Fs, durSamps, phaseShift);
-        for (int index = 0; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            PWMshift[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
-        }
-
-
-        return PWMshift;
-    }
-
-    public double[] triangle(double pitch, double Fs, int durSamps) {
-        double[] tri = new double[durSamps];
-        double[] Triangle = new double[durSamps];
-        double[] PWMwave = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-
-        double duty = 0.5;
-        double period;
-        double Scaling;
-
-        PWMwave = PWM(pitch, Fs, durSamps, duty);
-        Triangle[0] = 1;
-        period = Fs / pitch;
-        Scaling = 4 / period;
-
-        for (int index = 1; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            tri[index] = PWMwave[index] + tri[index - 1];
-            Triangle[index] = 1 + tri[index] * Scaling;
-
-        }
-
-        return Triangle;
-    }
-
-    public double[] triangleShifted(double pitch, double Fs, int durSamps, double Shift) {
-        double[] tri = new double[durSamps];
-        double[] Triangleshifted = new double[durSamps];
-        double[] PWMwave = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-
-        double duty = 0.5;
-        double period;
-        double Scaling;
-
-        PWMwave = PWMshifted(pitch, Fs, durSamps, duty, Shift);
-        Triangleshifted[0] = 0;
-        period = Fs / pitch;
-        Scaling = 4 / period;
-
-        for (int index = 1; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            tri[index] = PWMwave[index] + tri[index - 1];
-            Triangleshifted[index] = tri[index] * Scaling;
-
-        }
-
-        return Triangleshifted;
-    }
-
-    public double[] trapezoid(double pitch, double Fs, int durSamps) {
-        double[] Trapezoid = new double[durSamps];
-        double[] Triangle = new double[durSamps];
-        double[] TriangleShifted = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-
-        double Shift = Math.PI / 2;
-        Triangle = triangle(pitch, Fs, durSamps);
-        TriangleShifted = triangleShifted(pitch, Fs, durSamps, Shift);
-        for (int index = 0; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            Trapezoid[index] = Triangle[index] + TriangleShifted[index];
-        }
-
-
-        return Trapezoid;
-    }
-
-    public double[] SawTri(double pitch, double Fs, int durSamps, double duty) {
-        double[] SawTri = new double[durSamps];
-        double[] PWMscale = new double[durSamps];
-        double[] PWMwave = new double[durSamps];
-        double[] sawtri = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-        double period, coeff1, coeff2, GainScale, DCscale;
-
-//		PWMwave=PWM(pitch,Fs,durSamps,duty);
-
-        SawTri[0] = 1;
-        period = Fs / pitch;
-
-        coeff1 = period * (duty - Math.pow(duty, 2));
-        coeff2 = -1 + 2 * duty;
-        GainScale = 1 / coeff1;
-        DCscale = -coeff2 / coeff1;
-        sawtri[0] = GainScale * PWMwave[0] + DCscale;
-        //System.out.println("G= "+GainScale+ ' ' + "D= "+DCscale);
-        for (int index = 1; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            PWMscale[index] = GainScale * PWMwave[index] + DCscale;
-            sawtri[index] = PWMscale[index] + sawtri[index - 1];
-            //System.out.println(PWMscale[index-1]);
-            SawTri[index] = sawtri[index] + 1;
-        }
-
-
-        return SawTri;
-    }
-
     public double[] addArray(double[] one, double[] two) {
 
         double[] sum = new double[one.length];
@@ -304,11 +150,141 @@ public class Oscillators {
         return sum;
     }
 
-    private double[] synthesisOsc(ObservableList<Oscillators> l) {
-        double[] additive = new double[44100];
+    public double[] sinWave(double freqHz, double SampFreq, double timeDurSecs) {
 
+        int timeSamps = (int) (SampFreq * timeDurSecs);
+        double[] wave = new double[timeSamps];
+        double pi = Math.PI;
+        double SampPeriod = (double) 1.0 / SampFreq;
+        for (int index = 0; index < timeSamps; index++) {
+            wave[index] = Math.sin((double) 2 * pi * index * freqHz * SampPeriod);
+        }
 
-
-        return additive;
+        return wave;
     }
+
+    public double[] PWM(double pitch, double Fs, int durSamps, double duty) {
+        double[] PWM = new double[durSamps];
+        double[] saw1 = new double[durSamps];
+        double[] saw2 = new double[durSamps];
+        double[] timeAxis = new double[durSamps];
+        saw1 = saw(pitch, Fs, durSamps, 0);
+
+        double phaseShift = 2 * Math.PI * duty;
+        saw2 = saw(pitch, Fs, durSamps, phaseShift);
+
+        for (int index = 0; index < durSamps; index++) {
+            timeAxis[index] = index / Fs;
+            PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
+
+        }
+        return PWM;
+    }
+
+    public double[] scale(double[] harmonic, double Amp) {
+        int harmonicLen = harmonic.length;
+        double[] ScaledHarmonic = new double[harmonicLen];
+
+        for (int index = 0; index < harmonicLen; index++) {
+            ScaledHarmonic[index] = Amp * harmonic[index];
+        }
+        return ScaledHarmonic;
+    }
+
+    
+    public double [] square(double fhz, double Fs, int tlen, double phaseShift){
+        
+        double[] wave = new double[tlen];
+        double Amp;
+        double[] harmonicScale = new double[tlen];
+
+        double pi = Math.PI;
+        //store the value for PI in variable pi
+        //we compute a square wave by adding sine waves(sinusoids)
+        //compute the maximum number of sinusoids possible
+        //given a fundamental frequency (fhz) and a sampling frequency of Fs
+        //the highest harmonic/sinusoid before aliasing is fhz/2.
+        int K = (int) Math.floor(Fs * 0.5 / fhz);  //K=number of harmonics/sinusoids possible to avoid aliasing
+
+        System.out.println("K freq is" + K);
+        double[] harmonic = new double[tlen];
+
+        for (int k = 1; k < K; k=k+2) {
+            //compute the amplitude for each sinusoid based on harmonic number k
+            Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
+            Amp = 1.5 * Amp / pi;
+            //create a sinewave of frequency k*fhz
+            harmonic = sinWave(k * fhz, Fs, 1);
+            //scale(multiply) the harmonic by the Amplitude
+            harmonicScale = scale(harmonic, Amp);
+
+            //build the sawtooth by adding this harmonic to wave
+            //at each cycle of the for loop one more harmonic is added to wave
+            wave = addArray(wave, harmonicScale);
+        }
+    
+    
+    
+    return wave;
+    }
+    
+    public double[] saw(double fhz, double Fs, int tlen, double phaseShift) {
+        double[] wave = new double[tlen];
+        double Amp;
+        double[] harmonicScale = new double[tlen];
+
+        double pi = Math.PI;
+        //store the value for PI in variable pi
+        //we compute a square wave by adding sine waves(sinusoids)
+        //compute the maximum number of sinusoids possible
+        //given a fundamental frequency (fhz) and a sampling frequency of Fs
+        //the highest harmonic/sinusoid before aliasing is fhz/2.
+        int K = (int) Math.floor(Fs * 0.5 / fhz);  //K=number of harmonics/sinusoids possible to avoid aliasing
+
+        System.out.println("K freq is" + K);
+        double[] harmonic = new double[tlen];
+
+        for (int k = 1; k < K; k++) {
+            //compute the amplitude for each sinusoid based on harmonic number k
+            Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
+            Amp = 1.5 * Amp / pi;
+            //create a sinewave of frequency k*fhz
+            harmonic = sinWave(k * fhz, Fs, 1);
+            //scale(multiply) the harmonic by the Amplitude
+            harmonicScale = scale(harmonic, Amp);
+
+            //build the sawtooth by adding this harmonic to wave
+            //at each cycle of the for loop one more harmonic is added to wave
+            wave = addArray(wave, harmonicScale);
+        }
+
+        return wave;
+    }
+
+    public double[] wavScale(double[] inwave) {
+
+        double[] output = new double[(int) inwave.length];
+        double maxAmp = 0;
+
+        for (int i = 0; i < inwave.length; i++) {
+            if (Math.abs(inwave[i]) > maxAmp) {
+                maxAmp = Math.abs(inwave[i]);
+            }
+        }
+        for (int i = 0; i < inwave.length; i++) {
+            output[i] = inwave[i] / (maxAmp + 0.5);
+        }
+
+
+        System.out.println("max is" + maxAmp);
+        return output;
+    }
+    /*public  double[] addArrayOfArrays(Oscillators os, Oscillators os1){
+        
+     double[] sum = new double[44100];
+     for (int i = 0; i < sum.length; i++) {
+        
+     }
+     return sum;
+     }*/
 }

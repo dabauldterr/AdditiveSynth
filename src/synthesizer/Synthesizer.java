@@ -86,18 +86,7 @@ public class Synthesizer extends Application {
     /**
      * *****************Line Chart*******************
      */
-    private static final int MAX_DATA_POINTS = 150;
-    // series of datapoints
-    private Series series;
-    private ConcurrentLinkedQueue<Number> dataQ = new ConcurrentLinkedQueue<Number>();
-    private ExecutorService executor;
-    private AddToQueue addToQueue;
-    private Timeline timeline2;
-    NumberAxis xAxis;
-    private int xSeriesData = 0;
-    /**
-     * *************************************
-     */
+   
     Oscillators additive;
     double freq1;
     double sampleRate;
@@ -107,6 +96,7 @@ public class Synthesizer extends Application {
     FileChooser fileChooser;
     Slider balanceKnob;
     ObservableList<Oscillators> oscList = FXCollections.observableArrayList();
+    ObservableList<Oscillators> oscBankList = FXCollections.observableArrayList();
     double[] inputFileDouble;
     double[] inputFileScaled;
     byte[] inputFileBytes;
@@ -229,44 +219,13 @@ public class Synthesizer extends Application {
 
 
 
-            /**
-             * ************************Line Chart***************************
-             */
-            NumberAxis yAxis = new NumberAxis(-1.1, 1.1, .1);
-            xAxis = new NumberAxis(-1, MAX_DATA_POINTS, MAX_DATA_POINTS / 10);
-            xAxis.setTickLabelGap(.1);
-            final LineChart<Number, Number> sc = new LineChart<Number, Number>(xAxis, yAxis) {
-                // Override to remove symbols on each data point
-                @Override
-                protected void dataItemAdded(Series<Number, Number> series, int itemIndex, Data<Number, Number> item) {
-                }
-            };
-            sc.setAnimated(false);
-            sc.setId("liveAreaChart");
-            sc.setTitle("Animated Area Chart");
-            //-- Chart Series
-            series = new AreaChart.Series<Number, Number>();
-            sc.getData().add(series);
-            //-- Prepare Executor Services
-            executor = Executors.newCachedThreadPool();
-            addToQueue = new AddToQueue();
-            //-- Prepare Timeline
-            prepareTimeline();
-            /**
-             * *************************End******************************
-             */
+           
             
             /***********************WAVE types**************************/
             GridPane waveformTile = new GridPane();
-            
-            
-            waveformTile.setHgap(5);
-            waveformTile.setVgap(5);
-           // waveformTile.setPadding(new Insets(0, 10, 0, 10));
-            
-            
-            
-            
+                     waveformTile.setHgap(5);
+                     waveformTile.setVgap(5);
+         
             sine = new Button();
             sine.setText("sine'");
             sine.setOnAction(new EventHandler<ActionEvent>() {
@@ -303,7 +262,10 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        
+                        StdAudio.play(new Oscillators().square(440,44100, 44100, 0));
                       
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -316,7 +278,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
+                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -329,6 +291,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        freq1 = Integer.parseInt(fNameFldAmp.getText());
+                        amp = Integer.parseInt(fNameFld.getText());
+                        
                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -381,7 +346,12 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
+                        double pitch=9;
+                        double Fs=1000;
+                        int durSamps=1000;
+                        double phaseShift=Math.PI/2;
+                        double duty=0.15;
+                       oscBankList.add( new Oscillators());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -408,9 +378,9 @@ public class Synthesizer extends Application {
            // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
-            borderPane.setLeft(sc);
+           // borderPane.setLeft(sc);
             borderPane.setCenter(waveformTile);
-          //  borderPane.setRight(sc);
+          //borderPane.setRight(sc);
             borderPane.setBottom(addScrollPane());
             root.getChildren().addAll(borderPane, ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
@@ -471,6 +441,11 @@ public class Synthesizer extends Application {
             }
         });
     }
+    
+    public void oscillatorPair(){
+    
+    
+    }
 
     private double[] synthesisOsc(ObservableList<Oscillators> l) throws Exception {
         // sample frequency
@@ -478,14 +453,11 @@ public class Synthesizer extends Application {
 
 
         for (int i = 0; i < l.size(); i++) {
-            double[] temp = l.get(i).sine();
+            double[] temp = l.get(i).output();
             for (int j = 0; j < additiveTemp.length; j++) {
 
                 additiveTemp[j] = additiveTemp[j] + temp[j];
-
             }
-
-
         }
 
         return additiveTemp;
@@ -549,65 +521,7 @@ public class Synthesizer extends Application {
 
     }
 
-    /**
-     * ********************Line Methods************************
-     */
-    private class AddToQueue implements Runnable {
-
-        public void run() {
-            try {
-                Random random = new Random();
-                int someInt = random.nextInt(3) - 1;
-
-
-                //  for (int i = 0; i < temp.length/1000; i++) {
-
-
-
-                dataQ.add(someInt);
-                //  System.out.println(temp[i]);
-
-
-                // }
-                Thread.sleep(50);
-
-                executor.execute(this);
-
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    //-- Timeline gets called in the JavaFX Main thread
-    private void prepareTimeline() {
-        // Every frame to take any data from queue and add to chart
-        new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                addDataToSeries();
-            }
-        }.start();
-    }
-
-    private void addDataToSeries() {
-        for (int i = 0; i < 5; i++) { //-- add 20 numbers to the plot+
-            if (dataQ.isEmpty()) {
-                break;
-            }
-            series.getData().add(new LineChart.Data(xSeriesData++, dataQ.remove()));
-        }
-        // remove points to keep us at no more than MAX_DATA_POINTS
-        if (series.getData().size() > MAX_DATA_POINTS) {
-            series.getData().remove(0, series.getData().size() - MAX_DATA_POINTS);
-        }
-        // update 
-        xAxis.setLowerBound(xSeriesData - MAX_DATA_POINTS);
-        xAxis.setUpperBound(xSeriesData - 1);
-    }
-    /**
-     * **********************EndLineMethods************************
-     */
+   
      /*  public static double[] fft(double[] input) {
 
      DoubleFFT_1D fftDo = new DoubleFFT_1D(input.length);
