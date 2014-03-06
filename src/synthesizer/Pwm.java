@@ -8,54 +8,72 @@ package synthesizer;
  *
  * @author se413006
  */
-public class Square extends Oscillators {
+public class Pwm extends Oscillators  {
     int Fs =44100;
     double fhz;
-    double phaseShift;
     double amp;
-   
-    public Square(double _amp,double _fhz, double _phaseShift){
-        fhz=_fhz;
-        phaseShift=_phaseShift;
+    double duty;
+    
+    public Pwm(double _amp,double pitch,double _duty){
+        fhz= pitch;
+        
         amp=_amp;
+        duty=_duty;
+        
     }
     
-     public double[] output() {
+    public double[] output() {
+        double[] PWM = new double[Fs];
+        double[] saw1 = new double[Fs];
+        double[] saw2 = new double[Fs];
+        double[] timeAxis = new double[Fs];
+        saw1 = sawtooth(0);
+
+        double phaseShift = 2 * Math.PI * duty;
+        saw2 = sawtooth(phaseShift);
+
+        for (int index = 0; index < Fs; index++) {
+            timeAxis[index] = index / Fs;
+            PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
+           
+        }
+        return PWM;
+    }
+    public double[] sawtooth(double phaseShift) {
         double[] wave = new double[Fs];
         double Amp;
         double[] harmonicScale = new double[Fs];
 
         double pi = Math.PI;
-        
+     
         int K = (int) Math.floor(Fs * 0.5 / fhz);
 
         System.out.println("K freq is" + K);
         double[] harmonic = new double[Fs];
 
-        for (int k = 1; k < K; k=k+2) {
-            //compute the amplitude for each sinusoid based on harmonic number k
+        for (int k = 1; k < K; k++) {
+           
             Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
-            Amp = 2 * Amp / pi;
-            //create a sinewave of frequency k*fhz
-            harmonic = sinWave(amp,k * fhz,1);
-            //scale(multiply) the harmonic by the Amplitude
+            Amp = 1.5 * Amp / pi;
+            
+            harmonic = sinWave(amp,k * fhz,Fs);
             harmonicScale = scale(harmonic, Amp);
-
-            //build the sawtooth by adding this harmonic to wave
-            //at each cycle of the for loop one more harmonic is added to wave
-            wave = addArray(wave, harmonicScale);
+            wave = addArray(wave, harmonicScale); 
+           // System.out.println(wave[k]);
+            
         }
 
         return wave;
     }
-     public double[] sinWave(double amp,double fhz,double timeDurSecs) {
+    
+    public double[] sinWave(double amp,double fhz,double timeDurSecs) {
 
         
         double[] wave = new double[Fs];
         double pi = Math.PI;
         double SampPeriod = (double) 1.0 / Fs;
         for (int index = 0; index < Fs; index++) {
-            wave[index] =amp* Math.sin((double) 2 * pi * index * fhz * SampPeriod);
+            wave[index] = amp*Math.sin((double) 2 * pi * index * fhz * SampPeriod);
         }
 
         return wave;
@@ -78,5 +96,7 @@ public class Square extends Oscillators {
             ScaledHarmonic[index] = Amp * harmonic[index];
         }
         return ScaledHarmonic;
-    }
+    
 }
+}
+

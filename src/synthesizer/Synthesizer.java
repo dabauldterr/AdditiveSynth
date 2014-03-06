@@ -52,7 +52,7 @@ public class Synthesizer extends Application {
     double freq1;
     double sampleRate;
     int time;
-    int amp;
+    double amp;
     Thread t;
     FileChooser fileChooser;
     Slider balanceKnob;
@@ -90,6 +90,7 @@ public class Synthesizer extends Application {
     Button trapezoid;
     Button pwmShift; 
     Button prime;
+    Button noise;
     public void start(final Stage primaryStage) {
         try {
           
@@ -197,9 +198,12 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         
-                        freq1 = Integer.parseInt(fNameFldAmp.getText());
-                        amp = Integer.parseInt(fNameFld.getText());
-                        addOscillator(freq1,amp);
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                       
+                        //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Sine(amp,freq1).output());
                         
                         
                         } catch (Exception ex) {
@@ -228,8 +232,12 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         
-                        
-                       StdAudio.play(new Saw(440,44100).output());
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Square(amp,freq1,0).output());
                                              
                         } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -243,7 +251,12 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
                        
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Saw(amp,freq1,0).output());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -258,7 +271,7 @@ public class Synthesizer extends Application {
                     try {
                         
                         
-                      oscBankList.add(new Saw(441,44100));
+                      
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -271,7 +284,12 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Pwm(amp,freq1,0.5).output());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -336,15 +354,36 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        int x = Integer.parseInt(fNameFldAmp.getText());
-                        
-                      StdAudio.play(new OscillatorTypes().prime(440,0, x));
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Prime(amp,freq1,0).output());
+                    
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
             waveformTile.add(prime, 1, 4);
+            noise = new Button();
+            noise.setText("noise");
+            noise.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                        StdAudio.play(new Noise().output());
+                    
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(noise, 1, 5);
             
             
             
@@ -409,7 +448,7 @@ public class Synthesizer extends Application {
         //bind slider value to label
         new Slider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-
+                
                 new Oscillators().setFreq(new_val.doubleValue());
                 new Label().setText(String.format("%.2f", new_val));
             }
@@ -418,6 +457,19 @@ public class Synthesizer extends Application {
     
     public void oscillatorPair(double fhz, int durSamp){
             
+            if (!oscBankList.isEmpty()) {
+
+            //layout for each oscillator
+            oscList.get(oscList.size() - 1).getFreq();
+            oscList.get(oscList.size() - 1).l.setLayoutY(100);
+            oscList.get(oscList.size() - 1).l.setMaxWidth(70);
+            oscList.get(oscList.size() - 1).s.setOrientation(Orientation.VERTICAL);
+            oscList.get(oscList.size() - 1).s.setLayoutX(oscList.size() * 90);
+            oscList.get(oscList.size() - 1).s.setBlockIncrement(20);
+            oscList.get(oscList.size() - 1).s.maxHeight(100);
+            oscList.get(oscList.size() - 1).s.minWidth(30);
+          
+        }
     
     
     

@@ -12,10 +12,12 @@ public class Saw extends Oscillators {
     int Fs =44100;
     double fhz;
     double phaseShift;
-    
-    public Saw(double _fhz, double _phaseShift){
+    double amp;
+   
+    public Saw(double _amp,double _fhz, double _phaseShift){
         fhz=_fhz;
         phaseShift=_phaseShift;
+        amp=_amp;
     }
     
      public double[] output() {
@@ -33,27 +35,28 @@ public class Saw extends Oscillators {
         for (int k = 1; k < K; k++) {
             //compute the amplitude for each sinusoid based on harmonic number k
             Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
-            Amp = 1.5 * Amp / pi;
+            Amp = 2 * Amp / pi;
             //create a sinewave of frequency k*fhz
-            harmonic = sinWave(k * fhz,1);
+            harmonic = sinWave(amp,k * fhz,1);
             //scale(multiply) the harmonic by the Amplitude
             harmonicScale = scale(harmonic, Amp);
 
             //build the sawtooth by adding this harmonic to wave
             //at each cycle of the for loop one more harmonic is added to wave
             wave = addArray(wave, harmonicScale);
+           // System.out.println(wave[k]);
         }
 
         return wave;
     }
-     public double[] sinWave(double fhz,double timeDurSecs) {
+     public double[] sinWave(double amp,double fhz,double timeDurSecs) {
 
         
         double[] wave = new double[Fs];
         double pi = Math.PI;
         double SampPeriod = (double) 1.0 / Fs;
         for (int index = 0; index < Fs; index++) {
-            wave[index] = Math.sin((double) 2 * pi * index * fhz * SampPeriod);
+            wave[index] =amp* Math.sin((double) 2 * pi * index * fhz * SampPeriod);
         }
 
         return wave;
