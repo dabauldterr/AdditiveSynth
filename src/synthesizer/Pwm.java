@@ -1,7 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+//saw two no phase shift
+
+
 package synthesizer;
 
 /**
@@ -35,7 +34,7 @@ public class Pwm extends Oscillators  {
         for (int index = 0; index < Fs; index++) {
             timeAxis[index] = index / Fs;
             PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
-           
+           System.out.println(PWM[index]);
         }
         return PWM;
     }
@@ -56,7 +55,7 @@ public class Pwm extends Oscillators  {
             Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
             Amp = 1.5 * Amp / pi;
             
-            harmonic = sinWave(amp,k * fhz,Fs);
+            harmonic = sinWave(amp,k * fhz,Fs, k*phaseShift);
             harmonicScale = scale(harmonic, Amp);
             wave = addArray(wave, harmonicScale); 
            // System.out.println(wave[k]);
@@ -66,14 +65,14 @@ public class Pwm extends Oscillators  {
         return wave;
     }
     
-    public double[] sinWave(double amp,double fhz,double timeDurSecs) {
+    public double[] sinWave(double amp,double fhz,double timeDurSecs, double phaseShift) {
 
         
         double[] wave = new double[Fs];
         double pi = Math.PI;
         double SampPeriod = (double) 1.0 / Fs;
         for (int index = 0; index < Fs; index++) {
-            wave[index] = amp*Math.sin((double) 2 * pi * index * fhz * SampPeriod);
+            wave[index] = amp*Math.sin((double) 2 * pi * index * fhz * SampPeriod + phaseShift);
         }
 
         return wave;

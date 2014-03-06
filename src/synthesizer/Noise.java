@@ -8,7 +8,7 @@ package synthesizer;
  *
  * @author se413006
  */
-public class Noise {
+public class Noise extends Oscillators{
    int Fs = 44100;
    public Noise(){}
    

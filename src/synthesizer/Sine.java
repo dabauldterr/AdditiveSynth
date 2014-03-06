@@ -8,7 +8,7 @@ package synthesizer;
  *
  * @author se413006
  */
-public class Sine {
+public class Sine extends Oscillators {
     int Fs = 44100;
     double amp;
     double fhz;

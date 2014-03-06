@@ -24,6 +24,7 @@ public class Prime extends Oscillators {
     
      public double[] output() {
         double[] wave = new double[Fs];
+        wave = sinWave(amp,fhz,1);
         double Amp;
         double[] harmonicScale = new double[Fs];
         
@@ -40,7 +41,7 @@ public class Prime extends Oscillators {
            
             System.out.println(primes[i]);
             
-            Amp = (double) Math.pow(i,-1);
+            Amp = (double) Math.pow(primes[i],-1);
             Amp = 2 * Amp / pi;
             
             harmonic = sinWave(amp,primes[i] * fhz,1);
@@ -51,7 +52,10 @@ public class Prime extends Oscillators {
             wave = addArray(wave, harmonicScale);
             
             }
-
+            for (int i = 0; i < wave.length; i++) {
+                System.out.println(wave[i]);
+         }
+        
         return wave;
     }
      public double[] sinWave(double amp,double fhz,double timeDurSecs) {
