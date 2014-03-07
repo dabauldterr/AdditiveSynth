@@ -12,6 +12,7 @@ public class Pwm extends Oscillators  {
     double fhz;
     double amp;
     double duty;
+    int durSamps = 44100;
     
     public Pwm(double _amp,double pitch,double _duty){
         fhz= pitch;
@@ -22,19 +23,19 @@ public class Pwm extends Oscillators  {
     }
     
     public double[] output() {
-        double[] PWM = new double[Fs];
-        double[] saw1 = new double[Fs];
-        double[] saw2 = new double[Fs];
-        double[] timeAxis = new double[Fs];
-        saw1 = sawtooth(0);
+        double[] PWM = new double[durSamps];
+        double[] saw1 = new double[durSamps];
+        double[] saw2 = new double[durSamps];
+        double[] timeAxis = new double[durSamps];
+        saw1 = sawtooth(1);
 
-        double phaseShift = 2 * Math.PI * duty;
+        double phaseShift = Math.PI/2;
         saw2 = sawtooth(phaseShift);
 
-        for (int index = 0; index < Fs; index++) {
+        for (int index = 0; index < durSamps; index++) {
             timeAxis[index] = index / Fs;
             PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
-           System.out.println(PWM[index]);
+         //  System.out.println(PWM[index]);
         }
         return PWM;
     }

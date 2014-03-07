@@ -91,6 +91,8 @@ public class Synthesizer extends Application {
     Button pwmShift; 
     Button prime;
     Button noise;
+    Button play1;
+    double[]temp2;
     public void start(final Stage primaryStage) {
         try {
           
@@ -171,9 +173,14 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         // array to hold oscillators from oscList
-                        temp = synthesisOsc(oscList);
+                       // temp = synthesisOsc(oscList);
                         // executor.execute(addToQueue);
-                        StdAudio.play(temp);
+                     //   StdAudio.play(temp);
+                        
+                        // array to hold oscillators from oscList
+                      //  temp2 = synthesisOsc(oscBankList);
+                        // executor.execute(addToQueue);
+                       // StdAudio.play(temp);
 
                         //  System.out.println(temp.length);
                     } catch (Exception ex) {
@@ -203,7 +210,7 @@ public class Synthesizer extends Application {
                        
                        
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Sine(amp,freq1).output());
+                       oscBankList.add(new Sine(amp,freq1));
                         
                         
                         } catch (Exception ex) {
@@ -237,7 +244,7 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Square(amp,freq1,0).output());
+                        oscBankList.add(new Square(amp,freq1,0));
                                              
                         } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -256,7 +263,8 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Saw(amp,freq1,0).output());
+                       // StdAudio.play(new Saw(amp,freq1,0).output());
+                        oscBankList.add(new Saw(amp, freq1, 0) );
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -270,7 +278,12 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         
-                        
+                        amp   = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                       
+                      //  oscBankList.add(new Square( amp,freq1,44100));
+                      oscBankList.add(new Triangle(amp,freq1));
                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -289,7 +302,7 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Pwm(amp,freq1,0.5).output());
+                        oscBankList.add(new Pwm(amp,freq1,0.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -359,8 +372,8 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Prime(amp,freq1,0).output());
-                    
+                        //StdAudio.play(new Prime(amp,freq1,0).output());
+                        oscBankList.add(new Prime(amp,freq1,0));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -376,7 +389,7 @@ public class Synthesizer extends Application {
                         
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        StdAudio.play(new Noise().output());
+                          oscBankList.add(new Noise());
                     
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -385,6 +398,22 @@ public class Synthesizer extends Application {
             });
             waveformTile.add(noise, 1, 5);
             
+            play1 = new Button();
+            play1.setText("play1");
+            play1.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        temp2 = synthesisOsc(oscBankList);
+                        // executor.execute(addToQueue);
+                        StdAudio.play(temp);
+                    
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            waveformTile.add(play1, 1, 6);
             
             
    
@@ -481,10 +510,10 @@ public class Synthesizer extends Application {
 
 
         for (int i = 0; i < l.size(); i++) {
-            double[] temp = l.get(i).output();
+            double[] temp2 = l.get(i).output();
             for (int j = 0; j < additiveTemp.length; j++) {
 
-                additiveTemp[j] = additiveTemp[j] + temp[j];
+                additiveTemp[j] = additiveTemp[j] + temp2[j];
             }
         }
 

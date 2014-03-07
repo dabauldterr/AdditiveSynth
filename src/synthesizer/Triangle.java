@@ -12,12 +12,12 @@ public class Triangle extends Oscillators{
     
     int Fs =44100;
     double fhz;
-    double phaseShift;
+   // double phaseShift;
     double amp;
    
-    public Triangle(double _amp,double _fhz, double _phaseShift){
+    public Triangle(double _amp,double _fhz){
         fhz=_fhz;
-        phaseShift=_phaseShift;
+        //phaseShift=_phaseShift;
         amp=_amp;
     }
     public  double[] output(){
@@ -39,7 +39,7 @@ public class Triangle extends Oscillators{
 			timeAxis[index]=index/Fs;
 			tri[index]=PWMwave[index]+tri[index-1];
 			Triangle[index]=1+tri[index]*Scaling;
-		
+                      //  System.out.println(Triangle[index]);
 		}
 		
 		return Triangle;
