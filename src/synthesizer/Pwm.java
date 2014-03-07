@@ -3,6 +3,8 @@
 
 package synthesizer;
 
+import javafx.scene.control.Slider;
+
 /**
  *
  * @author se413006
@@ -13,10 +15,11 @@ public class Pwm extends Oscillators  {
     double amp;
     double duty;
     int durSamps = 44100;
+    Slider s;
     
-    public Pwm(double _amp,double pitch,double _duty){
+    public Pwm(double _amp,double pitch,double _duty,Slider _s){
         fhz= pitch;
-        
+        s=_s;
         amp=_amp;
         duty=_duty;
         

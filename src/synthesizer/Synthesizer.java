@@ -30,6 +30,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -93,9 +94,12 @@ public class Synthesizer extends Application {
     Button noise;
     Button play1;
     double[]temp2;
+    double ampSine;
+    int freq;
+    GridPane waveformTile = new GridPane();
     public void start(final Stage primaryStage) {
         try {
-          
+            freq=441;
             initOscillators();
             
             
@@ -197,7 +201,7 @@ public class Synthesizer extends Application {
            
             
             /***********************WAVE types**************************/
-            GridPane waveformTile = new GridPane();
+            
                      waveformTile.setHgap(5);
                      waveformTile.setVgap(5);
          
@@ -212,8 +216,8 @@ public class Synthesizer extends Application {
                         freq1 = Double.parseDouble(fNameFld.getText());
                        
                        
-                        //  oscBankList.add(new Square( amp,freq1,44100));
-                       oscBankList.add(new Sine(amp,freq1));
+                        
+                           
                         
                         
                         } catch (Exception ex) {
@@ -267,7 +271,7 @@ public class Synthesizer extends Application {
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
                        // StdAudio.play(new Saw(amp,freq1,0).output());
-                        oscBankList.add(new Saw(amp, freq1, 0) );
+                     //   oscBankList.add(new Saw(amp, freq1, 0) );
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -305,7 +309,7 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        oscBankList.add(new Pwm(amp,freq1,0.15));
+//                        oscBankList.add(new Pwm(amp,freq1,0.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -489,13 +493,28 @@ public class Synthesizer extends Application {
     }
     
     public void initOscillators(){
-    
+        ;
+       
+        oscBankList.add(new Sine(ampSine,freq,new Slider(0, 1, ampSine) ));
+        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
+        oscBankList.add(new Pwm(ampSine,freq,0.15,new Slider(0, 1, freq1) ));
         
+      
+        
+        
+        new Slider().valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+                
+                oscBankList.get(oscBankList.size() - 1).setFreq(new_val.doubleValue());
+                
+                
+            }
+        });
     }
 
     private double[] synthesisOsc(ObservableList<Oscillators> l) throws Exception {
         // sample frequency
-        System.out.println(oscBankList.size());
+       
         
         double[] additiveTemp = new double[44100];
         
