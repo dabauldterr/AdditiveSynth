@@ -96,6 +96,9 @@ public class Synthesizer extends Application {
     public void start(final Stage primaryStage) {
         try {
           
+            initOscillators();
+            
+            
            // additive = new Oscillators();
             sampleRate = 44100;
             time = 1;
@@ -372,8 +375,8 @@ public class Synthesizer extends Application {
                        
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
-                        //StdAudio.play(new Prime(amp,freq1,0).output());
-                        oscBankList.add(new Prime(amp,freq1,0));
+                        StdAudio.play(new ModPrime(amp,freq1,0).output());
+                        //oscBankList.add(new Prime(amp,freq1,0));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -390,6 +393,7 @@ public class Synthesizer extends Application {
                        
                       //  oscBankList.add(new Square( amp,freq1,44100));
                           oscBankList.add(new Noise());
+                          
                     
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -406,8 +410,8 @@ public class Synthesizer extends Application {
                     try {
                         temp2 = synthesisOsc(oscBankList);
                         // executor.execute(addToQueue);
-                        StdAudio.play(temp);
-                    
+                        StdAudio.play(temp2);
+                        System.out.println(oscBankList.size());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -484,36 +488,27 @@ public class Synthesizer extends Application {
         });
     }
     
-    public void oscillatorPair(double fhz, int durSamp){
-            
-            if (!oscBankList.isEmpty()) {
-
-            //layout for each oscillator
-            oscList.get(oscList.size() - 1).getFreq();
-            oscList.get(oscList.size() - 1).l.setLayoutY(100);
-            oscList.get(oscList.size() - 1).l.setMaxWidth(70);
-            oscList.get(oscList.size() - 1).s.setOrientation(Orientation.VERTICAL);
-            oscList.get(oscList.size() - 1).s.setLayoutX(oscList.size() * 90);
-            oscList.get(oscList.size() - 1).s.setBlockIncrement(20);
-            oscList.get(oscList.size() - 1).s.maxHeight(100);
-            oscList.get(oscList.size() - 1).s.minWidth(30);
-          
-        }
+    public void initOscillators(){
     
-    
-    
+        
     }
 
     private double[] synthesisOsc(ObservableList<Oscillators> l) throws Exception {
         // sample frequency
+        System.out.println(oscBankList.size());
+        
         double[] additiveTemp = new double[44100];
-
+        
 
         for (int i = 0; i < l.size(); i++) {
             double[] temp2 = l.get(i).output();
+               
+            
             for (int j = 0; j < additiveTemp.length; j++) {
 
                 additiveTemp[j] = additiveTemp[j] + temp2[j];
+                
+                
             }
         }
 
