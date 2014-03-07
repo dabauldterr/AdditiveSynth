@@ -15,13 +15,13 @@ public class Saw extends Oscillators {
     double fhz;
     double phaseShift;
     double amp;
-    Slider s;
+    
    
-    public Saw(double _amp,double _fhz, double _phaseShift, Slider _s){
+    public Saw(double _amp,double _fhz, double _phaseShift){
         fhz=_fhz;
         phaseShift=_phaseShift;
         amp=_amp;
-        s=_s;
+       
     }
     
      public double[] output() {

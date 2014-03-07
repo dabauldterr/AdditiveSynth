@@ -17,13 +17,23 @@ public class Pwm extends Oscillators  {
     int durSamps = 44100;
     Slider s;
     
-    public Pwm(double _amp,double pitch,double _duty,Slider _s){
+    public Pwm(double _amp,double pitch,double _duty){
         fhz= pitch;
-        s=_s;
+       
         amp=_amp;
         duty=_duty;
         
     }
+    public void setSlider(Slider _s){
+    s=s;
+    
+    }
+    
+    public Slider getSlider(){
+    
+    return s;
+    }
+    
     
     public double[] output() {
         double[] PWM = new double[durSamps];

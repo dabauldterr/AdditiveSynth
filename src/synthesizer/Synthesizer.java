@@ -496,7 +496,7 @@ public class Synthesizer extends Application {
         ;
        
         oscBankList.add(new Sine(ampSine,freq,new Slider(0, 1, ampSine) ));
-        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
+//        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
         oscBankList.add(new Pwm(ampSine,freq,0.15,new Slider(0, 1, freq1) ));
         
       
