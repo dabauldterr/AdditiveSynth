@@ -8,28 +8,34 @@ package synthesizer;
  *
  * @author se413006
  */
-public class Triangle {
+public class Triangle extends Oscillators{
     
-    public Triangle(){
-    
-    
+    int Fs =44100;
+    double fhz;
+    double phaseShift;
+    double amp;
+   
+    public Triangle(double _amp,double _fhz, double _phaseShift){
+        fhz=_fhz;
+        phaseShift=_phaseShift;
+        amp=_amp;
     }
-    public static double[] triangle(double pitch, double Fs, int durSamps){
-		double[] tri=new double[durSamps];
-		double[] Triangle=new double[durSamps];
-		double[] PWMwave=new double[durSamps];
-		double[] timeAxis=new double[durSamps];
+    public  double[] output(){
+		double[] tri=new double[Fs];
+		double[] Triangle=new double[Fs];
+		double[] PWMwave=new double[Fs];
+		double[] timeAxis=new double[Fs];
 		
 		double duty=0.5;
 		double period;
 		double Scaling;
 		
-		PWMwave=PWM(pitch, Fs, durSamps, duty);
+		PWMwave = new Pwm(amp, fhz,duty).output();
 		Triangle[0]=1;
-		period=Fs/pitch;
+		period=Fs/fhz;
 		Scaling=4/period;
 		
-		for (int index=1;index<durSamps;index++){
+		for (int index=1;index<Fs;index++){
 			timeAxis[index]=index/Fs;
 			tri[index]=PWMwave[index]+tri[index-1];
 			Triangle[index]=1+tri[index]*Scaling;
