@@ -93,17 +93,28 @@ public class Synthesizer extends Application {
     Button prime;
     Button noise;
     Button play1;
+    Button filterFIR;
+    Button filterIIR;
+    Button filterIIROneWeight;
     double[]temp2;
     double ampSine;
     int freq;
     GridPane waveformTile = new GridPane();
+    double AmpEnvAttack;
+    double AmpEnvDecay;
+    double AmpEnvSustainTime;
+    double AmpEnvSustainLevel;
+    double AmpEnvRelease;
+    double AmpEnv;	  
+   
+    EnvAdsr adsr;
+    double[] weights={1.9802,-0.9999};
+    
     public void start(final Stage primaryStage) {
         try {
             freq=441;
-            initOscillators();
+       //     initOscillators();
             
-            
-           // additive = new Oscillators();
             sampleRate = 44100;
             time = 1;
 
@@ -121,8 +132,11 @@ public class Synthesizer extends Application {
 
             TitledPane tp = new TitledPane("Piano", new Button("Button"));
             tp.setId("dropDownPiano");
-
+            HBox ampFilter = new HBox();
             
+        ampFilter.setPadding(new Insets(15, 12, 15, 12));
+        ampFilter.setSpacing(10);
+        ampFilter.setId("hBoxTop");
             /**
              * ********ADSR piano borderPane*****************
              */
@@ -155,8 +169,12 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     //LoadDialog.loadPlayList(playList, primaryStage);
-                    File selectedFile = fileChooser.showOpenDialog(primaryStage);
-                    file = selectedFile.getAbsolutePath();
+                //    File selectedFile = fileChooser.showOpenDialog(primaryStage);
+                 //   file = selectedFile.getAbsolutePath();
+                   // if (selectedFile != null) {
+  
+                  //   inputFileDouble = StdAudio.read(selectedFile.getAbsolutePath());
+                 //   }
                     }
             });
 
@@ -216,7 +234,7 @@ public class Synthesizer extends Application {
                         freq1 = Double.parseDouble(fNameFld.getText());
                        
                        
-                        
+                       
                            
                         
                         
@@ -424,7 +442,116 @@ public class Synthesizer extends Application {
             waveformTile.add(play1, 1, 6);
             
             
+            
+            /*********ENV*************/
+            
+           // Filters filters = new Filters(new Saw(amp,freq1,0).output()); 
+            
+            
+            GridPane ampEnvPane = new GridPane();
+                     ampEnvPane.setHgap(5);
+                     ampEnvPane.setVgap(5);
+            
+            Slider envAtack = new Slider();
+            envAtack.setOrientation(Orientation.VERTICAL);
+            envAtack.setBlockIncrement(10);
+            envAtack.maxHeight(60);
+            envAtack.minWidth(30);
+            envAtack.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+               
+                
+            }
+        });
+            ampEnvPane.add(envAtack,0,0);
+            
+            Slider envDecay = new Slider();
+            envDecay.setOrientation(Orientation.VERTICAL);
+            envDecay.setBlockIncrement(10);
+            envDecay.maxHeight(60);
+            envDecay.minWidth(30);
+            
+            ampEnvPane.add(envDecay,1,0);
+            
+            Slider envSustainLevel = new Slider();
+            envSustainLevel.setOrientation(Orientation.VERTICAL);
+            envSustainLevel.setBlockIncrement(10);
+            envSustainLevel.maxHeight(60);
+            envSustainLevel.minWidth(30);
+            ampEnvPane.add(envSustainLevel,2,0);
+            
+            Slider envSustainTime = new Slider();
+            envSustainTime.setOrientation(Orientation.VERTICAL);
+            envSustainTime.setBlockIncrement(10);
+            envSustainTime.maxHeight(60);
+            envSustainTime.minWidth(30);
+           
+            ampEnvPane.add(envSustainTime,3,0);
+            
+            Slider envRelease = new Slider();
+            envRelease.setOrientation(Orientation.VERTICAL);
+            envRelease.setBlockIncrement(10);
+            envRelease.maxHeight(60);
+            envRelease.minWidth(30);
+            ampEnvPane.add(envRelease,4,0);
+            
+            /*********ENV END*************/
+            
+            /***********FILTERS**********/
+            
+            /*GridPane filterPane = new GridPane();
+             * filterPane.setHgap(5);
+                     filterPane.setVgap(5);
+             
+            filterFIR = new Button();
+            filterFIR.setText("Fir");
+            filterFIR.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        filters.filterFIR();
+                        filters.getFiltered();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            filterPane.add(filterFIR,0,0);
+            
+            filterIIR = new Button();
+            filterIIR.setText("IIR");
+            filterIIR.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        filters.filterIIR(weights);
+                        filters.getFiltered();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            filterPane.add(filterIIR,0,1);
+            
+          
+            filterIIROneWeight = new Button();
+            filterIIROneWeight.setText("IIR1WT");
+            filterIIROneWeight.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        filters.filterIIROneWeight();
+                        filters.getFiltered();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            filterPane.add(filterIIROneWeight,0,2);
+            
+            /***********FILTERS END**********/
    
+            ampFilter.getChildren().addAll(ampEnvPane);
            // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
@@ -432,7 +559,7 @@ public class Synthesizer extends Application {
             borderPane.setCenter(waveformTile);
           //borderPane.setRight(sc);
             borderPane.setBottom(addScrollPane());
-            root.getChildren().addAll(borderPane, ADSRPianoPane);
+            root.getChildren().addAll(borderPane,ampFilter,ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
             primaryStage.setScene(scene);
             primaryStage.show();
@@ -493,13 +620,17 @@ public class Synthesizer extends Application {
     }
     
     public void initOscillators(){
-        ;
+        
        
         oscBankList.add(new Sine(ampSine,freq,new Slider(0, 1, ampSine) ));
 //        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
-        oscBankList.add(new Pwm(ampSine,freq,0.15,new Slider(0, 1, freq1) ));
+        oscBankList.add(new Pwm(ampSine,freq,0.15));
         
-      
+      oscBankList.get(oscBankList.size() - 1).setSlider(new Slider(1,1,1));
+      for (int i = 0; i < oscBankList.size(); i++) {
+      oscBankList.get(oscBankList.size() - 1).getSlider();
+        
+      }
         
         
         new Slider().valueProperty().addListener(new ChangeListener<Number>() {
