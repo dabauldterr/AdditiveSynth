@@ -10,10 +10,10 @@ import javafx.scene.control.Slider;
 
 public class Oscillators {
 
-    double freqHz;
-    double sampFreq;
+    double fhz;
+    double Fs;
     int time;
-    int amp;
+    double amp;
     int timeSamp;
     Slider s;
     Slider As;
@@ -22,20 +22,18 @@ public class Oscillators {
     Thread t;
 
     //pitch frequency, sample rate, length in time, amplitude, 
-    public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp, Slider _s, Label _l) {
-        freqHz = _freqHz;
-        sampFreq = _sampFreq;
-        time = _time;
+    public Oscillators(double _fhz, double _Fs,double _amp, Slider _s, Label _l) {
+        fhz = _fhz;
+        Fs = _Fs;
         amp = _amp;
-        timeSamp = (int) sampFreq * time;
+        timeSamp = 441000;
         s = _s;
         l = _l;
-        t = new Thread();
         s.setId("slider1");
 
     }
 
-    public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp, Slider _s, Label _l, Slider _As, Label _Al) {
+  /*  public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp, Slider _s, Label _l, Slider _As, Label _Al) {
         freqHz = _freqHz;
         sampFreq = _sampFreq;
         time = _time;
@@ -47,27 +45,31 @@ public class Oscillators {
         Al = _Al;
 
 
-    }
+    }*/
 
-    public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp) {
-        freqHz = _freqHz;
-        sampFreq = _sampFreq;
+    public Oscillators(double _fhz, double _Fs, int _time, int _amp) {
+        fhz = _fhz;
+        Fs = _Fs;
         time = _time;
         amp = _amp;
-        timeSamp = (int) sampFreq * time;
+        timeSamp = (int) Fs * time;
 
 
 
     }
     public Oscillators(){}
 
-    public Oscillators(double fhz, double Fs, int tlen, double phaseShift) {
-    }
+   
 
-    public void setFreq(double freqHz) {
-        this.freqHz = freqHz;
+    public void setAmp(double _amp) {
+        this.amp = _amp;
     }
-
+     public double getAmp() {
+        return amp;
+    } 
+     public void setFreq(double _fhz) {
+        this.fhz = _fhz;
+    }
     public void setSlider(Slider _s) {
         this.s = _s;
     }
@@ -85,7 +87,7 @@ public class Oscillators {
     }
 
     public void setSamp() {
-        this.sampFreq = sampFreq;
+        this.Fs = Fs;
     }
 
     public void setTime() {
@@ -93,19 +95,17 @@ public class Oscillators {
     }
 
     public double getFreq() {
-        return freqHz;
+        return fhz;
     }
 
     public void setAmp() {
         this.amp = amp;
     }
 
-    public double getAmp() {
-        return amp;
-    }
+    
 
     public double getSamp() {
-        return sampFreq;
+        return Fs;
     }
 
     public int getTime() {
@@ -129,19 +129,28 @@ public class Oscillators {
     }
 
     public double[] output() {
+        double[] wave = new double[(int)Fs];
+        double pi = Math.PI;
+        double SampPeriod = (double) 1.0 / Fs;
+        for (int index = 0; index < Fs; index++) {
+            wave[index] =amp * Math.sin((double) 2 * pi * index * fhz * SampPeriod);
+        }
 
-
+        return wave;
+    }
+  /*  public double[] output() {
+        
         double[] wave = new double[timeSamp];
         double pi = Math.PI;
         double SampPeriod = (double) 1.0 / sampFreq;
         for (int i = 0; i < timeSamp; i++) {
             wave[i] = amp * (Math.sin((double) 2 * pi * i * freqHz * SampPeriod));
-            // System.out.println(wave[i]);
+             System.out.println(wave[i]);
         }
         return wave;
 
     }
-   
+*/   
     
     
   /*public  double[] addArrayOfArrays(Oscillators os, Oscillators os1){

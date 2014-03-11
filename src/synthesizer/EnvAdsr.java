@@ -23,10 +23,13 @@ public class EnvAdsr{
      double sustainLevel;
      double release;
      double Fs;
+     double [] input;
+
+    
      
-     public void EnvAdsr(double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release,double _Fs){
+      public EnvAdsr(double[] _input,double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release,double _Fs){
      
-     
+      input = _input;
       attack =_attack;
       decay=_decay;
       sustainTime=_sustainTime;
@@ -84,7 +87,8 @@ public class EnvAdsr{
          }
     public double [] envGenNew() {
 	
-	double envValue=0;
+        
+        double envValue=0;
 	double zeta=Math.pow(10, -2/(Fs*(decay-attack)));
 	double zetaR=Math.pow(10, -2/(Fs*(release-sustainTime)));
 	  //System.out.println("zeta "+zetaR);
@@ -93,9 +97,9 @@ public class EnvAdsr{
 	int decaySamples=(int)(Fs*decay);
 	int sustainSamples=(int)(Fs*sustainTime);
         int totalTime = (int) (Fs*release);
-    
-    output = new double[totalTime+1];
-    
+        
+        output = new double[totalTime+1];
+        input = new double[totalTime+1];
     System.out.println("att=" + attackSamples + " dec=" + decaySamples + " sus=" + sustainSamples + " total=" + totalTime);
     
 	for(int envIndex=0;envIndex<totalTime;envIndex++)
@@ -115,11 +119,20 @@ public class EnvAdsr{
 		output[envIndex]=envValue;
 	
 	}
-	return output;
+        
+        
+	return multiplyArray(output,input);
 	
 	}
 	
-	
+	public  double[] multiplyArray(double[] output,double[] input){
+		double [] temp=new double [input.length];
+		
+		for (int index=0;index<input.length;index++) {
+			temp[index]=input[index]*output[index];	
+		}
+		return temp;
+	}
 	
 }
 

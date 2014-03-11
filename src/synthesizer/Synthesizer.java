@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.application.Application;
@@ -48,16 +49,14 @@ public class Synthesizer extends Application {
     /**
      * *****************Line Chart*******************
      */
-   
-    Oscillators additive;
+   Oscillators additive;
     double freq1;
     double sampleRate;
     int time;
     double amp;
     Thread t;
     FileChooser fileChooser;
-    Slider balanceKnob;
-    //hold list of oscillator types
+   //hold list of oscillator types
     ObservableList<Oscillators> oscList = FXCollections.observableArrayList();
     // hold data about each involked oscillator
     ObservableList<Oscillators> oscBankList = FXCollections.observableArrayList();
@@ -66,8 +65,6 @@ public class Synthesizer extends Application {
     byte[] inputFileBytes;
     double[] buffer;
     Oscillators single;
-    Button loadBtn;
-    Button loadOsc;
     HBox hBoxSlider;
     ScrollPane scrollWindow;
     Scene scene;
@@ -77,9 +74,11 @@ public class Synthesizer extends Application {
     Label fNameLblAmp;
     TextField fNameFldAmp;
     String fileName;
-    Button play;
     double[] temp;
     String file;
+    Button loadBtn;
+    Button loadOsc;
+    Button play;
     Button sine;
     Button formant;
     Button saw;
@@ -100,16 +99,17 @@ public class Synthesizer extends Application {
     double ampSine;
     int freq;
     GridPane waveformTile = new GridPane();
+    HBox ampFilter;
+    EnvAdsr Env;
+    Filters filters;
     double AmpEnvAttack;
     double AmpEnvDecay;
     double AmpEnvSustainTime;
     double AmpEnvSustainLevel;
     double AmpEnvRelease;
-    double AmpEnv;	  
-   
-    EnvAdsr adsr;
+    double AmpEnv;
     double[] weights={1.9802,-0.9999};
-    
+    ArrayList<Float> waveFileAnalysis = new ArrayList();
     public void start(final Stage primaryStage) {
         try {
             freq=441;
@@ -132,29 +132,28 @@ public class Synthesizer extends Application {
 
             TitledPane tp = new TitledPane("Piano", new Button("Button"));
             tp.setId("dropDownPiano");
-            HBox ampFilter = new HBox();
             
-        ampFilter.setPadding(new Insets(15, 12, 15, 12));
-        ampFilter.setSpacing(10);
-        ampFilter.setId("hBoxTop");
-            /**
-             * ********ADSR piano borderPane*****************
-             */
+            ampFilter = new HBox();
+            ampFilter.setPadding(new Insets(15, 12, 15, 12));
+            ampFilter.setSpacing(10);
+            ampFilter.setId("hBoxEndFil");
+            
+            /********ADSR piano borderPane*****************/
+            
             VBox ADSRPianoPane = new VBox();
             ADSRPianoPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             ADSRPianoPane.setId("ADSRP");
 
 
-            /**
-             * *******Hbox Slider***********
-             */
+            /*******Hbox Slider***********/
+            
             hBoxSlider = new HBox();
             hBoxSlider.setPadding(new Insets(15, 12, 15, 12));
             hBoxSlider.setSpacing(10);
             hBoxSlider.setStyle("z-index:100000");
-
             hBoxSlider.setMinSize(100, 100);
 
+            
             //add CSS stylesheet
             URL url = this.getClass().getResource("Main.css");
             if (url == null) {
@@ -163,18 +162,22 @@ public class Synthesizer extends Application {
             }
             String css = url.toExternalForm();
             scene.getStylesheets().add(css);
-
-            loadBtn = new Button();
+            
+            /***Wave file buttons********/
+            
+            loadBtn = new Button("Load File");
             loadBtn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    //LoadDialog.loadPlayList(playList, primaryStage);
-                //    File selectedFile = fileChooser.showOpenDialog(primaryStage);
-                 //   file = selectedFile.getAbsolutePath();
-                   // if (selectedFile != null) {
-  
-                  //   inputFileDouble = StdAudio.read(selectedFile.getAbsolutePath());
-                 //   }
+                   
+                    File selectedFile = fileChooser.showOpenDialog(primaryStage);
+                    file = selectedFile.getAbsolutePath();
+                    if (selectedFile != null) {
+                  //  waveFileAnalysis = new SndAnalysis(file).analSound();
+                     
+                    new EnvAdsr(StdAudio.read(file),0.25, 0.6, 0.8, 0.2, 1.0 ,sampleRate).envGenNew();
+                    
+                    }
                     }
             });
 
@@ -183,11 +186,22 @@ public class Synthesizer extends Application {
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    if (!oscList.isEmpty()) {
-                        System.out.print("Oscillator list size   " + oscList.size());
-                        System.out.print("          freq" + oscList.get(oscList.size() - 1).getFreq());
-                        //  StdAudio.play(oscList.get(oscList.size()-1).output());
-                    }
+                     freq1 = Double.parseDouble(fNameFldAmp.getText());
+                     amp   = Double.parseDouble(fNameFld.getText());
+ 
+                     // add oscillator objects to arraylist
+                     addOscillator(freq1, amp);
+ 
+ 
+ 
+                     if (!oscList.isEmpty()) {
+ 
+                         System.out.print(oscList.size());
+                         System.out.print("frequency   "+oscList.get(oscList.size() - 1).getFreq()+"   "+ "    Amp"+oscList.get(oscList.size() - 1).getAmp());
+                         
+                         //   StdAudio.play(oscList.get(oscList.size()-1).output());
+                     }
+                    
                 }
             });
 
@@ -198,16 +212,10 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         // array to hold oscillators from oscList
-                       // temp = synthesisOsc(oscList);
-                        // executor.execute(addToQueue);
-                     //   StdAudio.play(temp);
-                        
-                        // array to hold oscillators from oscList
-                      //  temp2 = synthesisOsc(oscBankList);
-                        // executor.execute(addToQueue);
-                       // StdAudio.play(temp);
-
-                        //  System.out.println(temp.length);
+                         temp = synthesisOsc(oscList);
+                       //  executor.execute(addToQueue);
+                         StdAudio.play(temp);
+                    
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -445,64 +453,97 @@ public class Synthesizer extends Application {
             
             /*********ENV*************/
             
-           // Filters filters = new Filters(new Saw(amp,freq1,0).output()); 
+             filters = new Filters(new Saw(1,440,0).output()); 
             
-            
+            Env = new EnvAdsr();
             GridPane ampEnvPane = new GridPane();
-                     ampEnvPane.setHgap(5);
-                     ampEnvPane.setVgap(5);
+                     ampEnvPane.setHgap(1);
+                     ampEnvPane.setVgap(1);
             
             Slider envAtack = new Slider();
+            envAtack.getStyleClass().add("adsrSlider");
             envAtack.setOrientation(Orientation.VERTICAL);
-            envAtack.setBlockIncrement(10);
-            envAtack.maxHeight(60);
-            envAtack.minWidth(30);
+            envAtack.setBlockIncrement(5);
+            envAtack.maxHeight(50);
+            envAtack.minWidth(20);
             envAtack.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
                
+                Env.setAttack(new_val.doubleValue());
                 
             }
-        });
+            });
             ampEnvPane.add(envAtack,0,0);
             
             Slider envDecay = new Slider();
+            envDecay.getStyleClass().add("adsrSlider");
             envDecay.setOrientation(Orientation.VERTICAL);
             envDecay.setBlockIncrement(10);
             envDecay.maxHeight(60);
             envDecay.minWidth(30);
-            
+            envDecay.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+               
+                Env.setDecay(new_val.doubleValue());
+                
+            }
+            });
             ampEnvPane.add(envDecay,1,0);
             
             Slider envSustainLevel = new Slider();
+            envSustainLevel.getStyleClass().add("adsrSlider");
             envSustainLevel.setOrientation(Orientation.VERTICAL);
             envSustainLevel.setBlockIncrement(10);
             envSustainLevel.maxHeight(60);
             envSustainLevel.minWidth(30);
+            envSustainLevel.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+               
+                Env.setSustainLevel(new_val.doubleValue());
+                
+            }
+            });
             ampEnvPane.add(envSustainLevel,2,0);
             
             Slider envSustainTime = new Slider();
+            envSustainTime.getStyleClass().add("adsrSlider");
             envSustainTime.setOrientation(Orientation.VERTICAL);
             envSustainTime.setBlockIncrement(10);
             envSustainTime.maxHeight(60);
             envSustainTime.minWidth(30);
-           
+            envSustainLevel.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+               
+                Env.setSustainTime(new_val.doubleValue());
+                
+            }
+            });
             ampEnvPane.add(envSustainTime,3,0);
             
             Slider envRelease = new Slider();
+            envRelease.getStyleClass().add("adsrSlider");
             envRelease.setOrientation(Orientation.VERTICAL);
             envRelease.setBlockIncrement(10);
             envRelease.maxHeight(60);
             envRelease.minWidth(30);
+            envRelease.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+               
+                Env.setRelease(new_val.doubleValue());
+                
+            }
+            });
             ampEnvPane.add(envRelease,4,0);
             
             /*********ENV END*************/
             
             /***********FILTERS**********/
             
-            /*GridPane filterPane = new GridPane();
-             * filterPane.setHgap(5);
+            GridPane filterPane = new GridPane();
+                     filterPane.setHgap(5);
                      filterPane.setVgap(5);
              
+            
             filterFIR = new Button();
             filterFIR.setText("Fir");
             filterFIR.setOnAction(new EventHandler<ActionEvent>() {
@@ -531,7 +572,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            filterPane.add(filterIIR,0,1);
+            filterPane.add(filterIIR,1,0);
             
           
             filterIIROneWeight = new Button();
@@ -547,11 +588,11 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            filterPane.add(filterIIROneWeight,0,2);
+            filterPane.add(filterIIROneWeight,2,0);
             
             /***********FILTERS END**********/
    
-            ampFilter.getChildren().addAll(ampEnvPane);
+            ampFilter.getChildren().addAll(ampEnvPane,filterPane);
            // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
@@ -573,10 +614,10 @@ public class Synthesizer extends Application {
         launch(args);
     }
 
-    public void addOscillator(double _freq1, int _amp) {
+    public void addOscillator(double _freq1, double _amp) {
 
         // add oscillators to oscList :observableArrayList()  
-        oscList.add(new Oscillators(_freq1, 44100, 10, _amp, new Slider(0, 5000, freq1), new Label()));
+        oscList.add(new Oscillators(_freq1, 44100, _amp, new Slider(0, 1, amp), new Label()));
        
         if (!oscList.isEmpty()) {
 
@@ -602,7 +643,7 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.valueProperty().addListener(new ChangeListener<Number>() {
                 public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
 
-                    oscList.get(oscList.size() - 1).setFreq(new_val.doubleValue());
+                    oscList.get(oscList.size() - 1).setAmp(new_val.doubleValue());
                     oscList.get(oscList.size() - 1).l.setText(String.format("%.2f", new_val));
                 }
             });
@@ -613,7 +654,7 @@ public class Synthesizer extends Application {
         new Slider().valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
                 
-                new Oscillators().setFreq(new_val.doubleValue());
+                new Oscillators().setAmp(new_val.doubleValue());
                 new Label().setText(String.format("%.2f", new_val));
             }
         });
@@ -722,64 +763,5 @@ public class Synthesizer extends Application {
     }
 
    
-     /*  public static double[] fft(double[] input) {
-
-     DoubleFFT_1D fftDo = new DoubleFFT_1D(input.length);
-     double[] fft = new double[input.length * 2];
-     System.arraycopy(input, 0, fft, 0, input.length);
-     fftDo.complexForward(fft);
-     //fftDo.
-     for (double d : fft) {
-     //  System.out.println("ff values"+d);
-     }
-     return fft;
-
-     }
-
-     public static double[] getrealVal(double[] d) {
-     int ptr = 0;
-     double[] real = new double[d.length / 2];
-     for (int i = 0; i < d.length; i += 2) {
-     real[ptr] = d[i];
-     //  System.out.println("real values"+real[ptr]);
-     ptr++;
-     }
-     return real;
-     }
-
-     public static double[] getimagVal(double[] d) {
-     int ptr = 0;
-     double[] real = new double[d.length / 2];
-     for (int i = 1; i < d.length; i += 2) {
-     real[ptr] = d[i];
-     //  System.out.println("imaginary values"+real[ptr]);
-     ptr++;
-     }
-     return real;
-     }
-
-     public static double[] magnitude(double[] r, double[] im) {
-     double[] result = new double[r.length];
-
-     for (int i = 0; i < result.length; i++) {
-     result[i] = Math.sqrt(((r[i]) * r[i]) + (im[i] * im[i]));
-     }
-
-     return result;
-     }
-
-     public static double[] fftShift(double[] x) {
-     double[] temp = new double[x.length];
-     for (int i = 0; i < x.length; i++) { //make temp array with same contents as x
-     temp[i] = x[i];
-     }
-
-     for (int i = 0; i < x.length / 2; i++) {
-     x[i] = temp[x.length / 2 + i];
-     x[x.length / 2 + i] = temp[i];
-     }
-     return x;
-     }
-     * */
-    
+     
 }
