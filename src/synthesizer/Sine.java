@@ -17,12 +17,12 @@ public class Sine extends Oscillators {
     int fhz;
     Slider s;
  
-  public Sine(double _amp,int _fhz, Slider _s){
+  public Sine(double _amp,int _fhz){
         
         amp = _amp;
         fhz = _fhz;
-        s= _s;
-        s.setOrientation(Orientation.HORIZONTAL);
+      //  s= _s;
+      //  s.setOrientation(Orientation.HORIZONTAL);
     
     
     }
@@ -32,6 +32,15 @@ public class Sine extends Oscillators {
   public double getAmp(double _amp) {
         return amp;
     }  
+  
+  public void setFhz(int _fhz) {
+        this.fhz = _fhz;
+    }
+  public int getFhz(double _fhz) {
+        return fhz;
+    }
+  
+  
     public double[] output() {
 
         

@@ -18,6 +18,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -79,6 +80,7 @@ public class Synthesizer extends Application {
     Label relLabel;
     TextField fNameFld;
     Label fNameLblAmp;
+    Label lfoAmp;
     TextField fNameFldAmp;
     String fileName;
     double[] temp;
@@ -119,7 +121,10 @@ public class Synthesizer extends Application {
     double[] weights = {1.9802, -0.9999};
     ArrayList<Float> waveFileAnalysis = new ArrayList();
     SndAnalysis anlys;
-
+    Sine sin;
+    Square sqr;
+    Triangle tri;
+    Lfo lfo;
     public void start(final Stage primaryStage) {
         try {
             freq = 441;
@@ -181,6 +186,7 @@ public class Synthesizer extends Application {
             
             
             Env = new EnvAdsr(AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
+            anlys = new SndAnalysis();
             /**
              * *Wave file buttons*******
              */
@@ -196,6 +202,7 @@ public class Synthesizer extends Application {
                         //  waveFileAnalysis = new SndAnalysis(file).analSound();
                          inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
                          Env.setWavIn(inputFileDouble);
+                         
                          anlys.setFile(selectedFile.getAbsolutePath());
                        /*    for (int i = 0; i < inputFileDouble.length; i++) {
                             System.out.println(inputFileDouble[i]);
@@ -259,10 +266,10 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      waveFileAnalysis = anlys.analSound();
-                        System.out.println(waveFileAnalysis.get(4));
+                    anlys.analSound();
+                      //  System.out.println(waveFileAnalysis.get(4));
                         
-                        new SndAnalysis().analSound();
+                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -501,6 +508,7 @@ public class Synthesizer extends Application {
 
             Slider envAtack = new Slider(0, 1, .5);
             attackLabel = new Label();
+            attackLabel.setText(String.format("%.2f", .5));
             envAtack.getStyleClass().add("adsrSlider");
             envAtack.setOrientation(Orientation.VERTICAL);
             envAtack.setBlockIncrement(5);
@@ -518,6 +526,7 @@ public class Synthesizer extends Application {
 
             Slider envDecay = new Slider(0, 1,.5);
             decayLabel = new Label();
+            decayLabel.setText(String.format("%.2f", .5));
             envDecay.getStyleClass().add("adsrSlider");
             envDecay.setOrientation(Orientation.VERTICAL);
             envDecay.setBlockIncrement(10);
@@ -535,6 +544,7 @@ public class Synthesizer extends Application {
             ampEnvPane.add(decayLabel, 1, 1);
             Slider envSustainLevel = new Slider(0, 1, .5);
             susLevLabel = new Label();
+            susLevLabel.setText(String.format("%.2f", .5));
             envSustainLevel.getStyleClass().add("adsrSlider");
             envSustainLevel.setOrientation(Orientation.VERTICAL);
             envSustainLevel.setBlockIncrement(10);
@@ -553,11 +563,12 @@ public class Synthesizer extends Application {
 
             Slider envSustainTime = new Slider(0, 1,.5);
             susTimeLabel = new Label();
+            susTimeLabel.setText(String.format("%.2f", .5));
             envSustainTime.getStyleClass().add("adsrSlider");
             envSustainTime.setOrientation(Orientation.VERTICAL);
             envSustainTime.setBlockIncrement(10);
             envSustainTime.maxHeight(60);
-            envSustainTime.minWidth(30);
+            envSustainTime.maxWidth(30);
             envSustainTime.valueProperty().addListener(new ChangeListener<Number>() {
                 public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
 
@@ -570,6 +581,7 @@ public class Synthesizer extends Application {
 
             Slider envRelease = new Slider(0, 1, .5);
             relLabel = new Label();
+            relLabel.setText(String.format("%.2f", .5));
             envRelease.getStyleClass().add("adsrSlider");
             envRelease.setOrientation(Orientation.VERTICAL);
             envRelease.setBlockIncrement(10);
@@ -587,7 +599,7 @@ public class Synthesizer extends Application {
 
             /*******ENV END************/
            
-            /**********FILTERS*********/
+            /********** Button FILTERS*********/
             
             GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
@@ -640,13 +652,74 @@ public class Synthesizer extends Application {
             });
             filterPane.add(filterIIROneWeight, 2, 0);
 
+            /******************LFO*****************/
+            GridPane lfoPane = new GridPane();
+            filterPane.setHgap(5);
+            filterPane.setVgap(5);
+            
+            ChoiceBox cb = new ChoiceBox();
+            cb.getItems().addAll("Sin", "Square", "Triangle");
+            cb.getSelectionModel().selectFirst();
+            lfo = new Lfo();
+            lfo.setAmplitude(.5);
+            Slider amplitude = new Slider(0, 1, .5);
+            lfoAmp = new Label();
+            lfoAmp.setText(String.format("%.2f", .5));
+            amplitude.getStyleClass().add("adsrSlider");
+            amplitude.setOrientation(Orientation.VERTICAL);
+            amplitude.setBlockIncrement(10);
+            amplitude.maxHeight(60);
+            amplitude.minWidth(30);
+            amplitude.valueProperty().addListener(new ChangeListener<Number>() {
+                public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+
+                    lfo.setAmplitude(new_val.doubleValue());
+                    lfoAmp.setText(String.format("%.2f", new_val));
+                }
+            });
+            
+            
+            
+             
+            cb.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>
+                    (){
+                    public void changed(ObservableValue ov, Number value, Number new_value){
+                    
+                    if(new_value.intValue()==0){
+                       // System.out.println("zeroth");
+                        lfo.makeSin(Env.envGenNew());
+                    }
+                    if(new_value.intValue()==1){
+                        
+                       // System.out.println("first");
+                        lfo.makeSquare(Env.envGenNew());
+                    }
+                    if(new_value.intValue()==2){
+                        
+                     //   System.out.println("second");
+                        lfo.makeTri(Env.envGenNew());
+                    }
+                    
+                    
+                    }
+                    });
+            
+                lfoPane.add(cb, 0, 0);
+                lfoPane.add(amplitude, 0, 1);
+                lfoPane.add(lfoAmp, 0, 2);
+                
+            
             /**
-             * *********FILTERS END*********
+             * *********Button FILTERS END*********
              */
 
-
+            /****************slider Filters*****************/
+            
+            
+            
+            /*****************slider Filters end************/
            
-            ampFilter.getChildren().addAll(ampEnvPane, filterPane);
+            ampFilter.getChildren().addAll(ampEnvPane, filterPane,lfoPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
@@ -671,7 +744,7 @@ public class Synthesizer extends Application {
     public void addOscillator(double _freq1, double _amp) {
 
         // add oscillators to oscList :observableArrayList()  
-        oscList.add(new Oscillators(_freq1, 44100, _amp, new Slider(0, 1, amp), new Label()));
+        oscList.add(new Oscillators(_freq1, 44100, _amp, new Slider(0, 1,amp), new Label()));
 
         if (!oscList.isEmpty()) {
 
@@ -684,6 +757,8 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.setBlockIncrement(20);
             oscList.get(oscList.size() - 1).s.maxHeight(100);
             oscList.get(oscList.size() - 1).s.minWidth(30);
+            oscList.get(oscList.size() - 1).l.setText(String.format("%.2f", amp));
+            
 
         }
 
@@ -717,7 +792,7 @@ public class Synthesizer extends Application {
     public void initOscillators() {
 
 
-        oscBankList.add(new Sine(ampSine, freq, new Slider(0, 1, ampSine)));
+//        oscBankList.add(new Sine(ampSine, freq, new Slider(0, 1, ampSine)));
 //        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
         oscBankList.add(new Pwm(ampSine, freq, 0.15));
 
@@ -781,7 +856,7 @@ public class Synthesizer extends Application {
         loadBtn.getStyleClass().add("button");
         loadBtn.setId("loadFile");
         loadBtn.setText("load audio file'");
-        hbox.getChildren().addAll(loadBtn, loadOsc, play, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
+        hbox.getChildren().addAll(loadBtn, loadOsc, play,mimic, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
 
         return hbox;
     }

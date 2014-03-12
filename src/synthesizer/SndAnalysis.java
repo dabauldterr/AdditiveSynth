@@ -19,11 +19,11 @@ public class SndAnalysis {
     ArrayList<Float> temporyHolderToTestIfAmplitudeExists = new ArrayList();
     ArrayList<Float> analysisList = new ArrayList();
     int decimation = 512;
-    int fftsize = 2048;
+    int fftsize = 512;
     int hop = 512;
     String filePath;
 
-    static {
+  /*  static {
         try {
             System.load("/home/se413006/sndobj-sndobj/lib/libsndobj.so.2.6.5");
             // System.loadLibrary("lib_jsndobj.so");
@@ -31,7 +31,7 @@ public class SndAnalysis {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);
         }
-    }
+    }*/
 
     public SndAnalysis() {
 
@@ -46,32 +46,37 @@ public class SndAnalysis {
     HammingTable win = new HammingTable(fftsize, 0.5f);
     IFGram ifgram = new IFGram(win, insound, 1.f, fftsize, hop);
     SinAnal sinus = new SinAnal(ifgram, 0.01f, 10, 2, 3);
+    
     short x;
+    public void /*ArrayList<Float>*/ analSound() {
 
-    public ArrayList<Float> analSound() {
-
-        int tlen = Math.round(totalWav.length / hop);
+        int tlen=Math.round(totalWav.length/hop);
         for (int i = 0; i < tlen; i++) {
+            //Read vecsize(2048) samples
             x = input.Read();
+            
+            //process vecsize(2048) samples
             insound.DoProcess();
             ifgram.DoProcess();
+            System.out.print("i= "+ i + " " +input.GetVectorSize() + " " +ifgram.GetVectorSize());
             sinus.DoProcess();
-
-            int frequencyCounter = 1;
-            while (sinus.Output(frequencyCounter) != 0f && frequencyCounter < 50) {
-                
-                temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
-                temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
-                
-                if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
-                    
-                    analysisList.add(sinus.Output(frequencyCounter));
-                    analysisList.add(sinus.Output(frequencyCounter) - 1);
-                }
-                frequencyCounter = frequencyCounter + 3;
+       
+        }
+        
+        int frequencyCounter = 1;
+        while (sinus.Output(frequencyCounter) != 0f && frequencyCounter < 50) { //* 100 < (Integer.MAX_VALUE - 1)) {
+		
+            temporyHolderToTestIfFrequencysExists.add(sinus.Output(frequencyCounter));
+            temporyHolderToTestIfAmplitudeExists.add(sinus.Output(frequencyCounter - 1));
+            if (sinus.Output(frequencyCounter) != 0.0f && sinus.Output(frequencyCounter - 1) != 0.0f) {
+                   System.out.print("freq "+sinus.Output(frequencyCounter));
+                   System.out.print(" amp "+sinus.Output(frequencyCounter-1));
+                   System.out.println(" phase  "+sinus.Output(frequencyCounter-2));
+             
             }
+            frequencyCounter = frequencyCounter + 3;
         }
 
-        return analysisList;
+       // return analysisList;
     }
 }
