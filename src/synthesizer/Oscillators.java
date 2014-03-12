@@ -47,12 +47,23 @@ public class Oscillators {
 
     }*/
 
-    public Oscillators(double _fhz, double _Fs, int _time, int _amp) {
+    public Oscillators(double _fhz, double _Fs, int _time, double _amp) {
         fhz = _fhz;
         Fs = _Fs;
         time = _time;
         amp = _amp;
         timeSamp = (int) Fs * time;
+
+
+
+    }
+    
+    public Oscillators(double _fhz, double _Fs,double _amp) {
+        fhz = _fhz;
+        Fs = _Fs;
+       
+        amp = _amp;
+       
 
 
 

@@ -22,12 +22,12 @@ public class EnvAdsr{
      double sustainTime;
      double sustainLevel;
      double release;
-     double Fs;
+     double Fs=44100;
      double [] input;
 
     
      
-      public EnvAdsr(double[] _input,double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release,double _Fs){
+      public EnvAdsr(double[] _input,double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release){
      
       input = _input;
       attack =_attack;
@@ -35,10 +35,15 @@ public class EnvAdsr{
       sustainTime=_sustainTime;
       sustainLevel= _sustainLevel;
       release = _release;
-      Fs = _Fs;
+      
      
      
      }
+      
+       public EnvAdsr(double[] _input){
+       input = _input;
+       
+       } 
      
     public double getAttack() {
         return attack;
@@ -117,7 +122,7 @@ public class EnvAdsr{
 		envValue=zetaR*envValue;
 		}
 		output[envIndex]=envValue;
-	
+                System.out.println(output[envIndex]);
 	}
         
         
