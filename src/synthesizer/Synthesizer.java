@@ -125,20 +125,17 @@ public class Synthesizer extends Application {
     Square sqr;
     Triangle tri;
     Lfo lfo;
+    double finalOut [];
+    FlowPane root;
+    BarMag bar;
     public void start(final Stage primaryStage) {
         try {
-            freq = 441;
-            //     initOscillators();
-
-            sampleRate = 44100;
-            time = 1;
-
             fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             fileChooser.getExtensionFilters().addAll(
-                    new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
+            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
 
-            final FlowPane root = new FlowPane();
+            root = new FlowPane();
             scene = new Scene(root, 1280, 650);
 
             BorderPane borderPane = new BorderPane();
@@ -153,9 +150,9 @@ public class Synthesizer extends Application {
             ampFilter.setSpacing(10);
             ampFilter.setId("hBoxEndFil");
 
-            /**
-             * ******ADSR piano borderPane****************
-             */
+            
+            /******ADSR piano borderPane****************/
+             
             VBox ADSRPianoPane = new VBox();
             ADSRPianoPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             ADSRPianoPane.setId("ADSRP");
@@ -203,7 +200,7 @@ public class Synthesizer extends Application {
                          inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
                          Env.setWavIn(inputFileDouble);
                          
-                         anlys.setFile(selectedFile.getAbsolutePath());
+                        // anlys.setFile(selectedFile.getAbsolutePath());
                        /*    for (int i = 0; i < inputFileDouble.length; i++) {
                             System.out.println(inputFileDouble[i]);
                         }*/
@@ -251,7 +248,7 @@ public class Synthesizer extends Application {
                         //  executor.execute(addToQueue);
                       //  StdAudio.play(temp);
                       //  Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
-                    stdAudio.play(Env.envGenNew());
+                    stdAudio.play(finalOut);
                      System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -292,12 +289,6 @@ public class Synthesizer extends Application {
 
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-
-
-
-
-
-
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -328,7 +319,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                        oscBankList.add(new Square(amp, freq1, 0));
+                            oscBankList.add(new Square(amp, freq1, 0));
 
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -367,7 +358,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                        oscBankList.add(new Triangle(amp, freq1));
+                            oscBankList.add(new Triangle(amp, freq1));
 
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -386,7 +377,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-//                        oscBankList.add(new Pwm(amp,freq1,0.15));
+                            oscBankList.add(new Pwm(amp,freq1,0.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -687,17 +678,17 @@ public class Synthesizer extends Application {
                     
                     if(new_value.intValue()==0){
                        // System.out.println("zeroth");
-                        lfo.makeSin(Env.envGenNew());
+                       finalOut= lfo.makeSin(Env.envGenNew());
                     }
                     if(new_value.intValue()==1){
                         
                        // System.out.println("first");
-                        lfo.makeSquare(Env.envGenNew());
+                      finalOut=  lfo.makeSquare(Env.envGenNew());
                     }
                     if(new_value.intValue()==2){
                         
                      //   System.out.println("second");
-                        lfo.makeTri(Env.envGenNew());
+                      finalOut=lfo.makeTri(Env.envGenNew());
                     }
                     
                     
@@ -718,14 +709,15 @@ public class Synthesizer extends Application {
             
             
             /*****************slider Filters end************/
-           
+               bar = new BarMag();
+              // bar.setMag();
             ampFilter.getChildren().addAll(ampEnvPane, filterPane,lfoPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
             // borderPane.setLeft(sc);
             borderPane.setCenter(waveformTile);
-            //borderPane.setRight(sc);
+            borderPane.setRight(bar.createChart());
             borderPane.setBottom(addScrollPane());
             root.getChildren().addAll(borderPane, ampFilter, ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
