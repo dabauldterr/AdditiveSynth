@@ -102,6 +102,7 @@ public class Synthesizer extends Application {
     Button filterFIR;
     Button filterIIR;
     Button filterIIROneWeight;
+    Button mimic;
     double[] temp2;
     double ampSine;
     int freq;
@@ -117,6 +118,7 @@ public class Synthesizer extends Application {
     double AmpEnv;
     double[] weights = {1.9802, -0.9999};
     ArrayList<Float> waveFileAnalysis = new ArrayList();
+    SndAnalysis anlys;
 
     public void start(final Stage primaryStage) {
         try {
@@ -132,7 +134,7 @@ public class Synthesizer extends Application {
                     new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
 
             final FlowPane root = new FlowPane();
-            scene = new Scene(root, 1280, 800);
+            scene = new Scene(root, 1280, 650);
 
             BorderPane borderPane = new BorderPane();
             borderPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
@@ -172,7 +174,13 @@ public class Synthesizer extends Application {
             }
             String css = url.toExternalForm();
             scene.getStylesheets().add(css);
-
+            
+            
+             
+            
+            
+            
+            Env = new EnvAdsr(AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
             /**
              * *Wave file buttons*******
              */
@@ -186,14 +194,18 @@ public class Synthesizer extends Application {
                    // String file1 = selectedFile.getName();
                     if (selectedFile != null) {
                         //  waveFileAnalysis = new SndAnalysis(file).analSound();
-                       inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
-                      //  new EnvAdsr(StdAudio.read(selectedFile.getAbsolutePath()), 0.25, 0.6, 0.8, 0.2, 1.0, sampleRate);
+                         inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
+                         Env.setWavIn(inputFileDouble);
+                         anlys.setFile(selectedFile.getAbsolutePath());
+                       /*    for (int i = 0; i < inputFileDouble.length; i++) {
+                            System.out.println(inputFileDouble[i]);
+                        }*/
                          
                     }
                 }
             });
 
-
+            
             loadOsc = new Button();
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -231,9 +243,9 @@ public class Synthesizer extends Application {
                        // temp = synthesisOsc(oscList);
                         //  executor.execute(addToQueue);
                       //  StdAudio.play(temp);
-                       // Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
-                        StdAudio.play(inputFileDouble);
-
+                      //  Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
+                    stdAudio.play(Env.envGenNew());
+                     System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -241,7 +253,21 @@ public class Synthesizer extends Application {
             });
 
 
-
+            mimic = new Button();
+            mimic.setText("mimic");
+            mimic.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                      waveFileAnalysis = anlys.analSound();
+                        System.out.println(waveFileAnalysis.get(4));
+                        
+                        new SndAnalysis().analSound();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
 
 
             /**
@@ -463,20 +489,17 @@ public class Synthesizer extends Application {
                 }
             });
             waveformTile.add(play1, 1, 6);
-
-
-
-            /**
+/**
              * *******ENV************
              */
             filters = new Filters(new Saw(1, 440, 0).output());
-
+            //Env = new EnvAdsr();
             
             GridPane ampEnvPane = new GridPane();
             ampEnvPane.setHgap(1);
             ampEnvPane.setVgap(1);
 
-            Slider envAtack = new Slider(0, 1, 1);
+            Slider envAtack = new Slider(0, 1, .5);
             attackLabel = new Label();
             envAtack.getStyleClass().add("adsrSlider");
             envAtack.setOrientation(Orientation.VERTICAL);
@@ -493,7 +516,7 @@ public class Synthesizer extends Application {
             ampEnvPane.add(envAtack, 0, 0);
             ampEnvPane.add(attackLabel, 0, 1);
 
-            Slider envDecay = new Slider(0, 1, 1);
+            Slider envDecay = new Slider(0, 1,.5);
             decayLabel = new Label();
             envDecay.getStyleClass().add("adsrSlider");
             envDecay.setOrientation(Orientation.VERTICAL);
@@ -510,7 +533,7 @@ public class Synthesizer extends Application {
             });
             ampEnvPane.add(envDecay, 1, 0);
             ampEnvPane.add(decayLabel, 1, 1);
-            Slider envSustainLevel = new Slider(0, 1, 1);
+            Slider envSustainLevel = new Slider(0, 1, .5);
             susLevLabel = new Label();
             envSustainLevel.getStyleClass().add("adsrSlider");
             envSustainLevel.setOrientation(Orientation.VERTICAL);
@@ -528,7 +551,7 @@ public class Synthesizer extends Application {
             ampEnvPane.add(susLevLabel, 2, 1);
             
 
-            Slider envSustainTime = new Slider(0, 1, 1);
+            Slider envSustainTime = new Slider(0, 1,.5);
             susTimeLabel = new Label();
             envSustainTime.getStyleClass().add("adsrSlider");
             envSustainTime.setOrientation(Orientation.VERTICAL);
@@ -545,7 +568,7 @@ public class Synthesizer extends Application {
             ampEnvPane.add(envSustainTime, 3, 0);
             ampEnvPane.add(susTimeLabel, 3, 1);
 
-            Slider envRelease = new Slider(0, 1, 1);
+            Slider envRelease = new Slider(0, 1, .5);
             relLabel = new Label();
             envRelease.getStyleClass().add("adsrSlider");
             envRelease.setOrientation(Orientation.VERTICAL);
@@ -562,12 +585,10 @@ public class Synthesizer extends Application {
             ampEnvPane.add(envRelease, 4, 0);
             ampEnvPane.add(relLabel, 4, 1);
 
-            /**
-             * *******ENV END************
-             */
-            /**
-             * *********FILTERS*********
-             */
+            /*******ENV END************/
+           
+            /**********FILTERS*********/
+            
             GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
@@ -622,6 +643,9 @@ public class Synthesizer extends Application {
             /**
              * *********FILTERS END*********
              */
+
+
+           
             ampFilter.getChildren().addAll(ampEnvPane, filterPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);

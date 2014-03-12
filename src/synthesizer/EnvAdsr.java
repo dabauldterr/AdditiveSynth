@@ -17,33 +17,29 @@ package synthesizer;
 public class EnvAdsr{
 	
      double [] output;
+     double [] wavIn;
      double attack; 
      double decay;
      double sustainTime;
      double sustainLevel;
      double release;
      double Fs=44100;
-     double [] input;
+     
 
     
      
-      public EnvAdsr(double[] _input,double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release){
+      public EnvAdsr(double _attack, double _decay, double _sustainTime, double _sustainLevel, double _release){
      
-      input = _input;
+      
       attack =_attack;
       decay=_decay;
       sustainTime=_sustainTime;
       sustainLevel= _sustainLevel;
       release = _release;
       
-     
-     
      }
       
-       public EnvAdsr(double[] _input){
-       input = _input;
-       
-       } 
+        
      
     public double getAttack() {
         return attack;
@@ -84,14 +80,14 @@ public class EnvAdsr{
     public void setRelease(double release) {
         this.release = release;
     }
+    public void setWavIn(double[] wav){
+    
+        wavIn=wav;
+    }
      
-	 public EnvAdsr(){
-         
-     //    envGenNew(attack,decay,sustainTime,sustainLevel,release,SR);
-         
-         }
+	 
     public double [] envGenNew() {
-	
+	//double[] temp = new double[input.length];
         
         double envValue=0;
 	double zeta=Math.pow(10, -2/(Fs*(decay-attack)));
@@ -104,8 +100,8 @@ public class EnvAdsr{
         int totalTime = (int) (Fs*release);
         
         output = new double[totalTime+1];
-        input = new double[totalTime+1];
-    System.out.println("att=" + attackSamples + " dec=" + decaySamples + " sus=" + sustainSamples + " total=" + totalTime);
+       // input = new double[totalTime+1];
+      //  System.out.println("att=" + attackSamples + " dec=" + decaySamples + " sus=" + sustainSamples + " total=" + totalTime);
     
 	for(int envIndex=0;envIndex<totalTime;envIndex++)
 	{
@@ -122,22 +118,21 @@ public class EnvAdsr{
 		envValue=zetaR*envValue;
 		}
 		output[envIndex]=envValue;
-                System.out.println(output[envIndex]);
+             //  System.out.println(output[envIndex]);
 	}
-        
-        
-	return multiplyArray(output,input);
+        // System.out.println(wavIn.length);
+        return multArray(wavIn, output);
+       
 	
-	}
+    }
 	
-	public  double[] multiplyArray(double[] output,double[] input){
-		double [] temp=new double [input.length];
+    public  double[] multArray(double[] A,double[] B){
+		double [] C=new double [B.length];
 		
-		for (int index=0;index<input.length;index++) {
-			temp[index]=input[index]*output[index];	
+		for (int index=0;index<B.length;index++) {
+			C[index]=A[index]*B[index];	
 		}
-		return temp;
+		return C;
 	}
-	
 }
 

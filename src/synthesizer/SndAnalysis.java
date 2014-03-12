@@ -33,10 +33,13 @@ public class SndAnalysis {
         }
     }
 
-    public SndAnalysis(String s) {
+    public SndAnalysis() {
 
-        filePath = s;
-
+      }
+    public void setFile(String s){
+    
+    filePath = s;
+    
     }
     SndWave input = new SndWave(filePath, (short) 3, (short) 1, (short) 16, null, 0.f, decimation);
     SndIn insound = new SndIn(input, (short) 1, decimation, 44100);
