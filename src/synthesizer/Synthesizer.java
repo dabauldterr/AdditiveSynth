@@ -125,23 +125,40 @@ public class Synthesizer extends Application {
     Square sqr;
     Triangle tri;
     Lfo lfo;
-    double finalOut [];
+    double finalOut[];
     FlowPane root;
     BarMag barChart;
     TimeDomain lineChart;
+    BorderPane borderPane;
+    double MagnitudeFFT[];
+    double[][] FFToutput;
+    FFT fft = new FFT();
+    double[] freqAxis;
+
     public void start(final Stage primaryStage) {
         try {
+
+            /**
+             * *********FFT**********
+             */
+            FFToutput = new double[2][44100];
+
+
+
+
+
+
             barChart = new BarMag();
             lineChart = new TimeDomain();
             fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             fileChooser.getExtensionFilters().addAll(
-            new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
+                    new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
 
             root = new FlowPane();
             scene = new Scene(root, 1280, 650);
 
-            BorderPane borderPane = new BorderPane();
+            borderPane = new BorderPane();
             borderPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             borderPane.setId("border");
 
@@ -153,9 +170,10 @@ public class Synthesizer extends Application {
             ampFilter.setSpacing(10);
             ampFilter.setId("hBoxEndFil");
 
-            
-            /******ADSR piano borderPane****************/
-             
+
+            /**
+             * ****ADSR piano borderPane***************
+             */
             VBox ADSRPianoPane = new VBox();
             ADSRPianoPane.setPrefSize(scene.getWidth() - 10, scene.getHeight() - 100);
             ADSRPianoPane.setId("ADSRP");
@@ -179,13 +197,13 @@ public class Synthesizer extends Application {
             }
             String css = url.toExternalForm();
             scene.getStylesheets().add(css);
-            
-            
-             
-            
-            
-            
-            Env = new EnvAdsr(AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
+
+
+
+
+
+
+            Env = new EnvAdsr(AmpEnvAttack, AmpEnvDecay, AmpEnvSustainTime, AmpEnvSustainLevel, AmpEnvRelease);
             anlys = new SndAnalysis();
             /**
              * *Wave file buttons*******
@@ -196,23 +214,29 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
 
                     File selectedFile = fileChooser.showOpenDialog(primaryStage);
-                   // file = selectedFile.getAbsolutePath();
-                   // String file1 = selectedFile.getName();
+                    // file = selectedFile.getAbsolutePath();
+                    // String file1 = selectedFile.getName();
                     if (selectedFile != null) {
                         //  waveFileAnalysis = new SndAnalysis(file).analSound();
-                         inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
-                         Env.setWavIn(inputFileDouble);
-                         
+                        inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
+                        Env.setWavIn(inputFileDouble);
+                        lineChart.setInput(inputFileDouble);
+                        borderPane.setLeft(lineChart.createLineChart());
+                        FFToutput = fft.doFFT(inputFileDouble, 44100);
+                        MagnitudeFFT = SpecMagnitude(FFToutput);
+                        barChart.setMag(MagnitudeFFT);
+                        borderPane.setRight(barChart.createChart());
+                        
                         // anlys.setFile(selectedFile.getAbsolutePath());
                        /*    for (int i = 0; i < inputFileDouble.length; i++) {
-                            System.out.println(inputFileDouble[i]);
-                        }*/
-                         
+                         System.out.println(inputFileDouble[i]);
+                         }*/
+
                     }
                 }
             });
 
-            
+
             loadOsc = new Button();
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -247,12 +271,12 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         // array to hold oscillators from oscList
-                       // temp = synthesisOsc(oscList);
+                        // temp = synthesisOsc(oscList);
                         //  executor.execute(addToQueue);
-                      //  StdAudio.play(temp);
-                      //  Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
-                    stdAudio.play(finalOut);
-                     System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
+                        //  StdAudio.play(temp);
+                        //  Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
+                        stdAudio.play(finalOut);
+                        System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -266,10 +290,15 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                    anlys.analSound();
-                      //  System.out.println(waveFileAnalysis.get(4));
                         
-                       
+                        freqAxis=makeFrequencyAxis(44100,64);
+                        FFToutput = fft.doFFT(inputFileDouble, 44100);
+                        MagnitudeFFT = SpecMagnitude(FFToutput);
+                        for (int i = 0; i < freqAxis.length; i++) {
+                            
+                            addOscillator(freqAxis[i],SpecMagnitude(FFToutput)[i]);
+                        }
+
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -322,7 +351,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                            oscBankList.add(new Square(amp, freq1, 0));
+                        oscBankList.add(new Square(amp, freq1, 0));
 
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -361,7 +390,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                            oscBankList.add(new Triangle(amp, freq1));
+                        oscBankList.add(new Triangle(amp, freq1));
 
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -380,7 +409,7 @@ public class Synthesizer extends Application {
 
 
                         //  oscBankList.add(new Square( amp,freq1,44100));
-                            oscBankList.add(new Pwm(amp,freq1,0.15));
+                        oscBankList.add(new Pwm(amp, freq1, 0.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -490,12 +519,12 @@ public class Synthesizer extends Application {
                 }
             });
             waveformTile.add(play1, 1, 6);
-/**
+            /**
              * *******ENV************
              */
             filters = new Filters(new Saw(1, 440, 0).output());
             //Env = new EnvAdsr();
-            
+
             GridPane ampEnvPane = new GridPane();
             ampEnvPane.setHgap(1);
             ampEnvPane.setVgap(1);
@@ -518,7 +547,7 @@ public class Synthesizer extends Application {
             ampEnvPane.add(envAtack, 0, 0);
             ampEnvPane.add(attackLabel, 0, 1);
 
-            Slider envDecay = new Slider(0, 1,.5);
+            Slider envDecay = new Slider(0, 1, .5);
             decayLabel = new Label();
             decayLabel.setText(String.format("%.2f", .5));
             envDecay.getStyleClass().add("adsrSlider");
@@ -553,9 +582,9 @@ public class Synthesizer extends Application {
             });
             ampEnvPane.add(envSustainLevel, 2, 0);
             ampEnvPane.add(susLevLabel, 2, 1);
-            
 
-            Slider envSustainTime = new Slider(0, 1,.5);
+
+            Slider envSustainTime = new Slider(0, 1, .5);
             susTimeLabel = new Label();
             susTimeLabel.setText(String.format("%.2f", .5));
             envSustainTime.getStyleClass().add("adsrSlider");
@@ -591,10 +620,12 @@ public class Synthesizer extends Application {
             ampEnvPane.add(envRelease, 4, 0);
             ampEnvPane.add(relLabel, 4, 1);
 
-            /*******ENV END************/
-           
-            /********** Button FILTERS*********/
-            
+            /**
+             * *****ENV END***********
+             */
+            /**
+             * ******** Button FILTERS********
+             */
             GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
@@ -646,11 +677,13 @@ public class Synthesizer extends Application {
             });
             filterPane.add(filterIIROneWeight, 2, 0);
 
-            /******************LFO*****************/
+            /**
+             * ****************LFO****************
+             */
             GridPane lfoPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
-            
+
             ChoiceBox cb = new ChoiceBox();
             cb.getItems().addAll("Sin", "Square", "Triangle");
             cb.getSelectionModel().selectFirst();
@@ -671,56 +704,56 @@ public class Synthesizer extends Application {
                     lfoAmp.setText(String.format("%.2f", new_val));
                 }
             });
-            
-            
-            
-             
-            cb.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>
-                    (){
-                    public void changed(ObservableValue ov, Number value, Number new_value){
-                    
-                    if(new_value.intValue()==0){
-                       // System.out.println("zeroth");
-                       finalOut= lfo.makeSin(Env.envGenNew());
+
+
+
+
+            cb.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+                public void changed(ObservableValue ov, Number value, Number new_value) {
+
+                    if (new_value.intValue() == 0) {
+                        // System.out.println("zeroth");
+                        finalOut = lfo.makeSin(Env.envGenNew());
                     }
-                    if(new_value.intValue()==1){
-                        
-                       // System.out.println("first");
-                      finalOut=  lfo.makeSquare(Env.envGenNew());
+                    if (new_value.intValue() == 1) {
+
+                        // System.out.println("first");
+                        finalOut = lfo.makeSquare(Env.envGenNew());
                     }
-                    if(new_value.intValue()==2){
-                        
-                     //   System.out.println("second");
-                      finalOut=lfo.makeTri(Env.envGenNew());
+                    if (new_value.intValue() == 2) {
+
+                        //   System.out.println("second");
+                        finalOut = lfo.makeTri(Env.envGenNew());
                     }
-                    
-                    
-                    }
-                    });
-            
-                lfoPane.add(cb, 0, 0);
-                lfoPane.add(amplitude, 0, 1);
-                lfoPane.add(lfoAmp, 0, 2);
-                
-            
+
+
+                }
+            });
+
+            lfoPane.add(cb, 0, 0);
+            lfoPane.add(amplitude, 0, 1);
+            lfoPane.add(lfoAmp, 0, 2);
+
+
             /**
              * *********Button FILTERS END*********
              */
-
-            /****************slider Filters*****************/
-            
-            
-            
-            /*****************slider Filters end************/
-               
-               // bar.setMag();
-            ampFilter.getChildren().addAll(ampEnvPane, filterPane,lfoPane);
+            /**
+             * **************slider Filters****************
+             */
+            /**
+             * ***************slider Filters end***********
+             */
+            // bar.setMag();
+            ampFilter.getChildren().addAll(ampEnvPane, filterPane, lfoPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
-            borderPane.setLeft(lineChart.createLineChart());
+
+
+
             borderPane.setCenter(waveformTile);
-            borderPane.setRight(barChart.createChart());
+           // borderPane.setRight(barChart.createChart());
             borderPane.setBottom(addScrollPane());
             root.getChildren().addAll(borderPane, ampFilter, ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");
@@ -739,7 +772,7 @@ public class Synthesizer extends Application {
     public void addOscillator(double _freq1, double _amp) {
 
         // add oscillators to oscList :observableArrayList()  
-        oscList.add(new Oscillators(_freq1, 44100, _amp, new Slider(0, 1,amp), new Label()));
+        oscList.add(new Oscillators(_freq1, 44100, _amp, new Slider(0, 1, amp), new Label()));
 
         if (!oscList.isEmpty()) {
 
@@ -753,7 +786,7 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.maxHeight(100);
             oscList.get(oscList.size() - 1).s.minWidth(30);
             oscList.get(oscList.size() - 1).l.setText(String.format("%.2f", amp));
-            
+
 
         }
 
@@ -851,7 +884,7 @@ public class Synthesizer extends Application {
         loadBtn.getStyleClass().add("button");
         loadBtn.setId("loadFile");
         loadBtn.setText("load audio file'");
-        hbox.getChildren().addAll(loadBtn, loadOsc, play,mimic, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
+        hbox.getChildren().addAll(loadBtn, loadOsc, play, mimic, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
 
         return hbox;
     }
@@ -883,5 +916,27 @@ public class Synthesizer extends Application {
 
         return scrollWindow;
 
+    }
+
+    public double[] makeFrequencyAxis(double Fs, int N) {
+        double[] freqAxis = new double[N];
+        double ND = (double) N;
+        freqAxis[0] = 0;
+        for (int index = 1; index < N; index++) {
+            double indexD = (double) index;
+            freqAxis[index] = freqAxis[index - 1] + (1 / ND) * Fs;
+            //System.out.println(freqAxis[index]);
+        }
+        return freqAxis;
+    }
+
+    public double[] SpecMagnitude(double[][] dftArray) {
+        int Len = dftArray[0].length;
+        double[] SpecMag = new double[Len];
+        for (int k = 0; k < Len; k++) {
+            SpecMag[k] = Math.sqrt(Math.pow(dftArray[0][k], 2) + Math.pow(dftArray[1][k], 2));
+        }
+
+        return SpecMag;
     }
 }

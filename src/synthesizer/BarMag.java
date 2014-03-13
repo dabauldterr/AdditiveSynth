@@ -20,9 +20,10 @@ public class BarMag {
     
     public void setMag(double [] in) {
         magnitudes = in;
-        for (int i = 0; i < series1Data.length; i++) {
+       /* for (int i = 0; i < series1Data.length; i++) {
             series1Data[i].setYValue(magnitudes[i] + 60);
-    }
+            magnitudes[i]=i+1;
+    }*/
     }
 
     protected BarChart<String, Number> createChart() {
@@ -40,6 +41,10 @@ public class BarMag {
         bc.setAlternativeColumnFillVisible(false);
         bc.setAlternativeRowFillVisible(false);
         bc.setStyle("-fx-background-color: " + "transparent"+ ";");
+        bc.getYAxis().setTickLabelsVisible(false);
+        bc.getYAxis().setOpacity(0);
+        bc.getXAxis().setTickLabelsVisible(false);
+        bc.getXAxis().setOpacity(0);
         
        
 

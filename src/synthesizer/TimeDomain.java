@@ -22,13 +22,19 @@ public class TimeDomain  {
     
     
     }
+    
+    double[]getInput(){
+    return input;
+    
+    
+    }
     protected LineChart<Number,Number> createLineChart() {
         
         
         
         
-        String filePath = new String("/home/se413006/Desktop/violin.wav");
-        double [] input = stdAudio.read(filePath);
+     //   String filePath = new String("/home/se413006/Desktop/violin.wav");
+      //  double [] input = stdAudio.read(filePath);
         
         
         //defining the axes
@@ -54,6 +60,15 @@ public class TimeDomain  {
             series.getData().add(new XYChart.Data(i, input[i]));
         }
         
+     /*   int samples=0;
+        int xaxis =0;
+        while(xaxis<input.length){
+        
+        series.getData().add(new XYChart.Data(xaxis, input[samples]));
+        xaxis++;
+        samples=samples+3;
+        }
+*/        
         
         
        
