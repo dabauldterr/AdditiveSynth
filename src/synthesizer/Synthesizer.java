@@ -127,7 +127,8 @@ public class Synthesizer extends Application {
     Lfo lfo;
     double finalOut [];
     FlowPane root;
-    BarMag bar;
+    BarMag barChart;
+    TimeDomain lineChart;
     public void start(final Stage primaryStage) {
         try {
             fileChooser = new FileChooser();
@@ -709,15 +710,16 @@ public class Synthesizer extends Application {
             
             
             /*****************slider Filters end************/
-               bar = new BarMag();
-              // bar.setMag();
+               barChart = new BarMag();
+               lineChart = new TimeDomain();
+               // bar.setMag();
             ampFilter.getChildren().addAll(ampEnvPane, filterPane,lfoPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);
             ADSRPianoPane.getChildren().add(tp);
             borderPane.setTop(addHBoxTop());
-            // borderPane.setLeft(sc);
+            borderPane.setLeft(lineChart.createLineChart());
             borderPane.setCenter(waveformTile);
-            borderPane.setRight(bar.createChart());
+            borderPane.setRight(barChart.createChart());
             borderPane.setBottom(addScrollPane());
             root.getChildren().addAll(borderPane, ampFilter, ADSRPianoPane);
             primaryStage.setTitle("HSynthesizer");

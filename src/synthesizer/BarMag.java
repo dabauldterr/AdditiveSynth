@@ -29,12 +29,16 @@ public class BarMag {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis(0, 50, 10);
         final BarChart<String, Number> bc = new BarChart<String, Number>(xAxis, yAxis);
-        bc.setId("barAudioDemo");
+         bc.setId("barAudioDemo");
         bc.setLegendVisible(false);
         bc.setAnimated(false);
         bc.setBarGap(0);
         bc.setCategoryGap(1);
         bc.setVerticalGridLinesVisible(false);
+        bc.setHorizontalGridLinesVisible(false);
+        bc.setAlternativeColumnFillVisible(false);
+        bc.setAlternativeRowFillVisible(false);
+        bc.setStyle("-fx-background-color: " + "transparent"+ ";");
 
         // setup chart
         bc.setTitle("Live Audio Spectrum Data");
