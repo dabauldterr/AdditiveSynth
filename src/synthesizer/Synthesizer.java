@@ -131,6 +131,8 @@ public class Synthesizer extends Application {
     TimeDomain lineChart;
     public void start(final Stage primaryStage) {
         try {
+            barChart = new BarMag();
+            lineChart = new TimeDomain();
             fileChooser = new FileChooser();
             fileChooser.setTitle("Open Resource File");
             fileChooser.getExtensionFilters().addAll(
@@ -710,8 +712,7 @@ public class Synthesizer extends Application {
             
             
             /*****************slider Filters end************/
-               barChart = new BarMag();
-               lineChart = new TimeDomain();
+               
                // bar.setMag();
             ampFilter.getChildren().addAll(ampEnvPane, filterPane,lfoPane);
             // waveformTile.getChildren().addAll(sine,formant,square,saw,triangle,other);

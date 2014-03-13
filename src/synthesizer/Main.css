@@ -8,22 +8,17 @@
 .scene {
     background-color: black;
 
-
 }
 
 .label{
-    
     color: white;
     tab-size: 16px;
-    
     
 }
 .root{
     font-size: 15pt;
     font-family: serif;
-    color: white;
-
-
+    color: yellow;
     -fx-background-color: black;
 }
 
@@ -83,34 +78,29 @@ slider:hover *.thumb  {
 
 .chart-series-line {    
     -fx-stroke-width: 1px;
-    -fx-effect: null;
     -fx-stroke: linear-gradient(from 0% 0% to 20% 0%, transparent 0%, blue 100%);
-
 }
 
-.chart-content {
-    -fx-padding: 10px;
-
+.default-color0.chart-bar { 
+    -fx-bar-fill: blue; 
 }
 
-chart-bar{
-    -fx-bar-fill: linear-gradient(from 20% 20% to 50% 50%, transparent 0%, blue 100%);
-    -fx-background-color:blue;
-}
-.chart-content {
+chart-content {
     -fx-padding: 0px;
-    
-}
-.chart-plot-background {
+ }
+
+ .chart-plot-background {
   -fx-background-color: transparent;
 }
+
+
 .chart-vertical-grid-lines {
     -fx-stroke: transparent;
 }
+
 .chart-horizontal-grid-lines {
     -fx-stroke: transparent;
 }
-
 .chart-alternative-row-fill {
     -fx-fill: transparent;
     -fx-stroke: transparent;
