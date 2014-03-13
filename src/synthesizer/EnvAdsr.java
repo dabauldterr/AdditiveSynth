@@ -84,6 +84,10 @@ public class EnvAdsr{
     
         wavIn=wav;
     }
+    public double[] getWavIn(){
+    
+        return wavIn;
+    }
      
 	 
     public double [] envGenNew() {
@@ -118,7 +122,7 @@ public class EnvAdsr{
 		envValue=zetaR*envValue;
 		}
 		output[envIndex]=envValue;
-             //  System.out.println(output[envIndex]);
+             // System.out.println(output[envIndex]);
 	}
         // System.out.println(wavIn.length);
         return multArray(wavIn, output);

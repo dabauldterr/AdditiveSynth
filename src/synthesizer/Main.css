@@ -87,10 +87,12 @@ slider:hover *.thumb  {
 
 chart-content {
     -fx-padding: 0px;
+    fx-border-color:white;
+    
  }
 
  .chart-plot-background {
-  -fx-background-color: transparent;
+  -fx-background-color: rgba(73,64,64,.3);
 }
 
 

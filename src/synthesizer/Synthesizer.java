@@ -3,6 +3,7 @@ package synthesizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import javafx.stage.FileChooser;
@@ -105,6 +106,7 @@ public class Synthesizer extends Application {
     Button filterIIR;
     Button filterIIROneWeight;
     Button mimic;
+    Button PlayFile;
     double[] temp2;
     double ampSine;
     int freq;
@@ -214,16 +216,19 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
 
                     File selectedFile = fileChooser.showOpenDialog(primaryStage);
-                    // file = selectedFile.getAbsolutePath();
-                    // String file1 = selectedFile.getName();
+                    
                     if (selectedFile != null) {
                         //  waveFileAnalysis = new SndAnalysis(file).analSound();
                         inputFileDouble = stdAudio.read(selectedFile.getAbsolutePath());
-                        Env.setWavIn(inputFileDouble);
+                        temp=inputFileDouble;
+                        
+                        
                         lineChart.setInput(inputFileDouble);
                         borderPane.setLeft(lineChart.createLineChart());
+                        
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                        
                         barChart.setMag(MagnitudeFFT);
                         borderPane.setRight(barChart.createChart());
                         
@@ -265,17 +270,16 @@ public class Synthesizer extends Application {
             });
 
             play = new Button();
-            play.setText("play'");
+            play.setText("play sinusoid");
             play.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
                         // array to hold oscillators from oscList
-                        // temp = synthesisOsc(oscList);
+                        temp = synthesisOsc(oscList);
                         //  executor.execute(addToQueue);
                         //  StdAudio.play(temp);
-                        //  Env = new EnvAdsr(inputFileDouble,AmpEnvAttack,AmpEnvDecay,AmpEnvSustainTime,AmpEnvSustainLevel,AmpEnvRelease);
-                        stdAudio.play(finalOut);
+                        stdAudio.play(temp);
                         System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -283,6 +287,22 @@ public class Synthesizer extends Application {
                 }
             });
 
+            PlayFile = new Button();
+            PlayFile.setText("PlayFile");
+            PlayFile.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        
+                        
+                        Env.setWavIn(temp);
+                        stdAudio.play(Env.envGenNew());
+                          System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
 
             mimic = new Button();
             mimic.setText("mimic");
@@ -291,9 +311,10 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         
-                        freqAxis=makeFrequencyAxis(44100,64);
+                        freqAxis=makeFrequencyAxis(44100,128);
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                        
                         for (int i = 0; i < freqAxis.length; i++) {
                             
                             addOscillator(freqAxis[i],SpecMagnitude(FFToutput)[i]);
@@ -884,7 +905,7 @@ public class Synthesizer extends Application {
         loadBtn.getStyleClass().add("button");
         loadBtn.setId("loadFile");
         loadBtn.setText("load audio file'");
-        hbox.getChildren().addAll(loadBtn, loadOsc, play, mimic, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
+        hbox.getChildren().addAll(loadBtn, loadOsc, play, mimic,PlayFile, fNameLblAmp, fNameFldAmp, fNameLbl, fNameFld);
 
         return hbox;
     }

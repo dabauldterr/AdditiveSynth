@@ -54,7 +54,7 @@ public class BarMag {
         
         //noinspection unchecked
         series1Data = new XYChart.Data[64];
-        String[] categories = new String[64];
+        String[] categories = new String[164];
         for (int i = 0; i < series1Data.length; i++) {
             categories[i] = Integer.toString(i + 1);
             series1Data[i] = new XYChart.Data<String, Number>(categories[i], 50);
