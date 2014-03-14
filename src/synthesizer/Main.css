@@ -10,10 +10,10 @@
     
 }
  .text-field{
-    
-    -fx-padding:12 0 12 0;
-    width: 25px;
-    
+   -fx-padding:12 0 12 0;
+     -FX-width: 25px;
+    -fx-font-size: 12px;
+    -fx-text-fill: #0E1A26;
     
 }
 .label {
@@ -21,6 +21,18 @@
     -fx-padding:12 0 12 0;
     -fx-text-fill: white;
 }
+#borderPane{
+    
+    -fx-alignment:center;
+}
+
+#hBoxTop{
+    -fx-alignment:center;
+    
+    
+    
+}
+
 .root{
     
     
@@ -65,7 +77,18 @@ chart-content {
      fx-border-color:white;
     
  }
-
+ #rectL{
+     
+    -fx-background-color: #34495E; 
+     
+     
+ } #rectR{
+     
+    -fx-background-color: #34495E; 
+     
+     
+ }
+ 
  .chart-plot-background {
   -fx-background-color: #34495E;
 }
@@ -135,19 +158,41 @@ chart-content {
     -fx-font-size: 15px;
 }
 
+#oscWave {
+    
+    -fx-background-color: #326151;
+    
+    -fx-background-radius: 2;
+    -width:40px;
+    -height:20px;
+     
+    -fx-text-fill: white;
+    -fx-font-size: 15px
+    }
+#oscWave:pressed {
+    
+    -fx-background-color: #103F2F;
+    -fx-background-radius: 2;
+    -width:40px;
+    -height:20px;
+     
+    -fx-text-fill: white;
+    -fx-font-size: 15px
+    }
+
 .slider .thumb {
-     -fx-padding: 20px;
+     -fx-padding: 15px 20px 15px 30px ;
     -fx-background-color: #1ABC9C;
-    -fx-background-radius: 7;
+    -fx-background-radius: 2;
     
    
 }
 
 .slider .thumb:pressed {
-     -fx-padding: 20px;
+     -fx-padding: 15px 20px 15px 30px ;
     -fx-background-color: #1ABC9C;
-    -fx-background-radius: 7;
-   -fx-effect: dropshadow( gaussian , blanchedalmond , 10,0,0,0 );
+    -fx-background-radius: 2;
+   -fx-effect: dropshadow( gaussian , blanchedalmond , 4,0,0,0 );
 }
 
 .slider .track {
@@ -161,10 +206,15 @@ chart-content {
 }
 
 .adsrSlider .slider .thumb{
-     -fx-padding: 10px;
+     -fx-padding: 10px 13px;
     -fx-background-color: #E67E22;
-    -fx-background-radius: 7;
+    -fx-background-radius: 4;
     
+}
+
+.adsrSlider .slider .thumb:pressed {
+     
+   -fx-effect: dropshadow( gaussian , blanchedalmond , 2,0,0,0 );
 }
 .adsrSlider .slider .track {
     -fx-border-width: 1px;

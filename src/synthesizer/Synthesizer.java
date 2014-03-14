@@ -36,6 +36,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import tabs.FXDialog;
 import tabs.Message;
 
@@ -136,7 +137,9 @@ public class Synthesizer extends Application {
     double[][] FFToutput;
     FFT fft = new FFT();
     double[] freqAxis;
-
+    Rectangle rectL;
+    Rectangle rectR;
+    
     public void start(final Stage primaryStage) {
         try {
 
@@ -164,7 +167,14 @@ public class Synthesizer extends Application {
            
             borderPane.setPrefWidth(scene.getWidth());
             borderPane.setPrefHeight(scene.getHeight()-200);
-            borderPane.setId("border");
+            borderPane.setId("borderPane");
+            rectL = new Rectangle((int)scene.getWidth()/3, 250);
+            rectL.setId("rectL");
+            rectR = new Rectangle((int)scene.getWidth()/3, 250);
+            rectR.setId("rectR");
+            borderPane.setLeft(rectL);
+            borderPane.setRight(rectR);
+        
             /**
              * *****Hbox Slider**********
              */
@@ -309,8 +319,8 @@ public class Synthesizer extends Application {
             /**
              * *********************WAVE types*************************
              */
-            waveformTile.setHgap(5);
-            waveformTile.setVgap(5);
+            waveformTile.setHgap(15);
+            waveformTile.setVgap(15);
 
             sine = new Button();
             sine.setText("sine'");
@@ -326,6 +336,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });
+            sine.setId("oscWave");
             waveformTile.add(sine, 0, 0);
             formant = new Button();
             formant.setText("formant");
@@ -338,6 +349,8 @@ public class Synthesizer extends Application {
                     }
                 }
             });
+            formant.setId("oscWave");
+            
             waveformTile.add(formant, 0, 1);
             square = new Button();
             square.setText("square");
@@ -354,7 +367,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });square.setId("oscWave");
             waveformTile.add(square, 0, 2);
             saw = new Button();
             saw.setText("saw");
@@ -369,7 +382,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });saw.setId("oscWave");
             waveformTile.add(saw, 0, 3);
             triangle = new Button();
             triangle.setText("triangle");
@@ -384,7 +397,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });triangle.setId("oscWave");
             waveformTile.add(triangle, 0, 4);
             pwm = new Button();
             pwm.setText("pwm");
@@ -400,7 +413,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });pwm.setId("oscWave");
             waveformTile.add(pwm, 0, 5);
             pwmShift = new Button();
             pwmShift.setText("pwmShift");
@@ -412,7 +425,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });pwmShift.setId("oscWave");
             waveformTile.add(pwmShift, 1, 0);
             triangleShift = new Button();
             triangleShift.setText("triangleShift");
@@ -424,7 +437,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });triangleShift.setId("oscWave");
             waveformTile.add(triangleShift, 1, 1);
             sawTriangle = new Button();
             sawTriangle.setText("sawTriangle");
@@ -436,7 +449,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });sawTriangle.setId("oscWave");
             waveformTile.add(sawTriangle, 1, 2);
             trapezoid = new Button();
             trapezoid.setText("trapezoid");
@@ -449,7 +462,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });trapezoid.setId("oscWave");
             waveformTile.add(trapezoid, 1, 3);
             prime = new Button();
             prime.setText("prime");
@@ -465,7 +478,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });prime.setId("oscWave");
             waveformTile.add(prime, 1, 4);
             noise = new Button();
             noise.setText("noise");
@@ -478,7 +491,7 @@ public class Synthesizer extends Application {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            });
+            });noise.setId("oscWave");
             waveformTile.add(noise, 1, 5);
 
             
@@ -808,7 +821,7 @@ public class Synthesizer extends Application {
         hbox.setPadding(new Insets(15, 12, 15, 12));
         hbox.setSpacing(10);
         hbox.setId("hBoxTop");
-
+        
         fNameLblAmp = new Label("Amp");
         fNameFldAmp = new TextField();
         fNameLbl = new Label("Frequency");
