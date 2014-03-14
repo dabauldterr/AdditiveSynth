@@ -29,7 +29,7 @@ public class Oscillators {
         timeSamp = 441000;
         s = _s;
         l = _l;
-        s.setId("slider1");
+        
 
     }
 

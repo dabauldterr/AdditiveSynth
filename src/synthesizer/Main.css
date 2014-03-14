@@ -28,7 +28,7 @@
 }
 
 .scroll-pane{
-    
+     -fx-paddign:0;
      -fx-background-color: #0E1A26;
     
 }
@@ -92,8 +92,25 @@ chart-content {
     -fx-text-fill: white;
     -fx-font-size: 15px;
     }
+    
+ #loadWave:pressed{
+    -fx-background-color:#175385;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    }
 #sinusoid {
     -fx-background-color:#E34E5D;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
+#sinusoid:pressed {
+    -fx-background-color:#941925;
     -fx-background-insets: 0,1,2,3;
     -fx-background-radius: 3,2,2,2;
     -fx-padding: 12 20 12 20;
@@ -109,10 +126,18 @@ chart-content {
     -fx-text-fill: white;
     -fx-font-size: 15px;
 }
+#waveFormPlay:pressed {
+    -fx-background-color: #942F19;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
 
 .slider .thumb {
      -fx-padding: 20px;
-    -fx-background-color: blue;
+    -fx-background-color: #1ABC9C;
     -fx-background-radius: 7;
     
    
@@ -120,7 +145,7 @@ chart-content {
 
 .slider .thumb:pressed {
      -fx-padding: 20px;
-    -fx-background-color: blue;
+    -fx-background-color: #1ABC9C;
     -fx-background-radius: 7;
    -fx-effect: dropshadow( gaussian , blanchedalmond , 10,0,0,0 );
 }
@@ -130,6 +155,21 @@ chart-content {
     -fx-background-insets: 1 0 -1 0, 0, 1;
     -fx-background-radius: 1;
     
+    -fx-background-color: #7F8C8D;
+    -fx-border-color: #7F8C8D;
+    
+}
+
+.adsrSlider .slider .thumb{
+     -fx-padding: 10px;
+    -fx-background-color: #E67E22;
+    -fx-background-radius: 7;
+    
+}
+.adsrSlider .slider .track {
+    -fx-border-width: 1px;
+    -fx-background-insets: 1 0 -1 0, 0, 1;
+    -fx-background-radius: 1;
     -fx-background-color: #7F8C8D;
     -fx-border-color: #7F8C8D;
     

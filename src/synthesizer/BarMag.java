@@ -4,6 +4,7 @@
  */
 package synthesizer;
 
+import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -45,6 +46,7 @@ public class BarMag {
         bc.getYAxis().setOpacity(0);
         bc.getXAxis().setTickLabelsVisible(false);
         bc.getXAxis().setOpacity(0);
+        
         
        
 

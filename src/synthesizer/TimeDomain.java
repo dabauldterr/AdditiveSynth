@@ -50,7 +50,7 @@ public class TimeDomain  {
         lineChart.getXAxis().setTickLabelsVisible(false);
         lineChart.getXAxis().setOpacity(0);
         lineChart.setLegendVisible(false);
-        
+       
         //defining a series
         XYChart.Series series = new XYChart.Series();
         series.setName("Time Domain");
@@ -67,8 +67,8 @@ public class TimeDomain  {
         while(xaxis<input.length){
         
         series.getData().add(new XYChart.Data(xaxis, input[samples]));
-        xaxis+=20;
-        samples+=20;
+        xaxis+=85;
+        samples+=85;
         }
         
         

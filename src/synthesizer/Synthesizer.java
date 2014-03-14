@@ -144,12 +144,6 @@ public class Synthesizer extends Application {
              * *********FFT**********
              */
             FFToutput = new double[2][44100];
-
-
-
-
-
-
             barChart = new BarMag();
             lineChart = new TimeDomain();
             fileChooser = new FileChooser();
@@ -158,16 +152,18 @@ public class Synthesizer extends Application {
                     new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"));
 
             root = new FlowPane();
-            scene = new Scene(root, 1280, 800);
+            scene = new Scene(root, 1280, 900);
             
             ampFilter = new HBox();
             ampFilter.setPadding(new Insets(15, 12, 15, 12));
             ampFilter.setSpacing(10);
             ampFilter.setId("hBoxEndFil");
+            ampFilter.setPrefHeight(200);
             
             borderPane = new BorderPane();
+           
             borderPane.setPrefWidth(scene.getWidth());
-            borderPane.setPrefHeight(500);
+            borderPane.setPrefHeight(scene.getHeight()-200);
             borderPane.setId("border");
             /**
              * *****Hbox Slider**********
@@ -230,14 +226,10 @@ public class Synthesizer extends Application {
 
                         addOscillator(freq1, amp);
                     }
-
-
                     if (!oscList.isEmpty()) {
 
                         System.out.print(oscList.size());
                         System.out.print("frequency   " + oscList.get(oscList.size() - 1).getFreq() + "   " + "    Amp" + oscList.get(oscList.size() - 1).getAmp());
-
-
                     }
 
                 }
@@ -495,18 +487,18 @@ public class Synthesizer extends Application {
              * *******ENV************
              */
             filters = new Filters(new Saw(1, 440, 0).output());
-            //Env = new EnvAdsr();
+            
 
             GridPane ampEnvPane = new GridPane();
-            ampEnvPane.setHgap(1);
-            ampEnvPane.setVgap(1);
+            ampEnvPane.setHgap(15);
+            ampEnvPane.setVgap(5);
 
             Slider envAtack = new Slider(0, 1, .5);
             attackLabel = new Label();
             attackLabel.setText(String.format("%.2f", .5));
             envAtack.getStyleClass().add("adsrSlider");
             envAtack.setOrientation(Orientation.VERTICAL);
-            envAtack.setBlockIncrement(5);
+            envAtack.setBlockIncrement(15);
             envAtack.maxHeight(50);
             envAtack.minWidth(20);
             envAtack.valueProperty().addListener(new ChangeListener<Number>() {
@@ -524,7 +516,7 @@ public class Synthesizer extends Application {
             decayLabel.setText(String.format("%.2f", .5));
             envDecay.getStyleClass().add("adsrSlider");
             envDecay.setOrientation(Orientation.VERTICAL);
-            envDecay.setBlockIncrement(10);
+            envDecay.setBlockIncrement(15);
             envDecay.maxHeight(60);
             envDecay.minWidth(30);
             envDecay.valueProperty().addListener(new ChangeListener<Number>() {
@@ -542,7 +534,7 @@ public class Synthesizer extends Application {
             susLevLabel.setText(String.format("%.2f", .5));
             envSustainLevel.getStyleClass().add("adsrSlider");
             envSustainLevel.setOrientation(Orientation.VERTICAL);
-            envSustainLevel.setBlockIncrement(10);
+            envSustainLevel.setBlockIncrement(15);
             envSustainLevel.maxHeight(60);
             envSustainLevel.minWidth(30);
             envSustainLevel.valueProperty().addListener(new ChangeListener<Number>() {
@@ -560,7 +552,7 @@ public class Synthesizer extends Application {
             susTimeLabel.setText(String.format("%.2f", .5));
             envSustainTime.getStyleClass().add("adsrSlider");
             envSustainTime.setOrientation(Orientation.VERTICAL);
-            envSustainTime.setBlockIncrement(10);
+            envSustainTime.setBlockIncrement(15);
             envSustainTime.maxHeight(60);
             envSustainTime.maxWidth(30);
             envSustainTime.valueProperty().addListener(new ChangeListener<Number>() {
@@ -578,7 +570,7 @@ public class Synthesizer extends Application {
             relLabel.setText(String.format("%.2f", .5));
             envRelease.getStyleClass().add("adsrSlider");
             envRelease.setOrientation(Orientation.VERTICAL);
-            envRelease.setBlockIncrement(10);
+            envRelease.setBlockIncrement(15);
             envRelease.maxHeight(60);
             envRelease.minWidth(30);
             envRelease.valueProperty().addListener(new ChangeListener<Number>() {
@@ -665,7 +657,7 @@ public class Synthesizer extends Application {
             lfoAmp.setText(String.format("%.2f", .5));
             amplitude.getStyleClass().add("adsrSlider");
             amplitude.setOrientation(Orientation.VERTICAL);
-            amplitude.setBlockIncrement(10);
+            amplitude.setBlockIncrement(15);
             amplitude.maxHeight(60);
             amplitude.minWidth(30);
             amplitude.valueProperty().addListener(new ChangeListener<Number>() {
@@ -730,7 +722,7 @@ public class Synthesizer extends Application {
             oscList.get(oscList.size() - 1).s.setOrientation(Orientation.VERTICAL);
             oscList.get(oscList.size() - 1).s.setLayoutX(oscList.size() * 90);
             oscList.get(oscList.size() - 1).s.setBlockIncrement(20);
-            oscList.get(oscList.size() - 1).s.maxHeight(100);
+            oscList.get(oscList.size() - 1).s.setPrefHeight(170);
             oscList.get(oscList.size() - 1).s.minWidth(30);
             oscList.get(oscList.size() - 1).l.setText(String.format("%.2f", amp));
 
@@ -825,7 +817,7 @@ public class Synthesizer extends Application {
 
         return hbox;
     }
-
+    
     private MenuBar getMenu() {
 
         MenuBar menuBar = new MenuBar();
@@ -841,10 +833,10 @@ public class Synthesizer extends Application {
 
         Image roses = new Image(getClass().getResourceAsStream("dark-metal-texture.jpg"));
         scrollWindow = new ScrollPane();
-        scrollWindow.setPrefSize(scene.getWidth() - 10, 250);
+       // scrollWindow.setPrefSize(scene.getWidth() - 10, 200);
         scrollWindow.setId("scrollwindow");
         scrollWindow.setContent(hBoxSlider);
-
+        scrollWindow.setPrefSize(scene.getWidth() - 10, 250);
         //  scrollWindow.setContent(new ImageView(roses));
 
 
