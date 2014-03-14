@@ -7,57 +7,32 @@
 */
 .scene {
     background-color: black;
-
-}
-
-.label{
-    color: white;
-    tab-size: 16px;
     
 }
+ .text-field{
+    
+    -fx-padding:12 0 12 0;
+    width: 25px;
+    
+    
+}
+.label {
+    -fx-font-size: 15px;
+    -fx-padding:12 0 12 0;
+    -fx-text-fill: white;
+}
 .root{
-    font-size: 15pt;
-    font-family: serif;
-    color: yellow;
-    -fx-background-color: black;
+    
+    
+    -fx-background-color: #0E1A26;
 }
 
-#hBoxTop{
-
-
-
+.scroll-pane{
+    
+     -fx-background-color: #0E1A26;
+    
 }
-
-
-#loadFile{
-
-
-
-}
-#loadFile {
-
-}
-
-#border{
-
-
-
-
-}
-#scrollwindow  {
-
-    z-index: -10000;
-    padding: 0;
-    -fx-background-color: black;
-
-}
-.slider  {
-
-
-
-}
-
-
+/*
 .slider *.thumb {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
@@ -75,24 +50,24 @@ slider:hover *.thumb  {
    
 
 }
-
+*/
 .chart-series-line {    
     -fx-stroke-width: 1px;
-    -fx-stroke: linear-gradient(from 0% 0% to 20% 0%, transparent 0%, blue 100%);
+    -fx-stroke:#1ABC9C;
 }
 
 .default-color0.chart-bar { 
-    -fx-bar-fill: blue; 
+    -fx-bar-fill: #16A085; 
 }
 
 chart-content {
     -fx-padding: 0px;
-    fx-border-color:white;
+     fx-border-color:white;
     
  }
 
  .chart-plot-background {
-  -fx-background-color: rgba(73,64,64,.3);
+  -fx-background-color: #34495E;
 }
 
 
@@ -109,4 +84,53 @@ chart-content {
     -fx-stroke-width: 0;
 }
 
+#loadWave{
+    -fx-background-color:#4790CC;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    }
+#sinusoid {
+    -fx-background-color:#E34E5D;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
 
+#waveFormPlay {
+    -fx-background-color: #E3674E;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
+
+.slider .thumb {
+     -fx-padding: 20px;
+    -fx-background-color: blue;
+    -fx-background-radius: 7;
+    
+   
+}
+
+.slider .thumb:pressed {
+     -fx-padding: 20px;
+    -fx-background-color: blue;
+    -fx-background-radius: 7;
+   -fx-effect: dropshadow( gaussian , blanchedalmond , 10,0,0,0 );
+}
+
+.slider .track {
+    -fx-border-width: 3px;
+    -fx-background-insets: 1 0 -1 0, 0, 1;
+    -fx-background-radius: 1;
+    
+    -fx-background-color: #7F8C8D;
+    -fx-border-color: #7F8C8D;
+    
+}
