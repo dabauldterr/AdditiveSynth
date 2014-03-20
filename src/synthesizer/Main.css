@@ -5,10 +5,7 @@
     Description:
         Purpose of the stylesheet follows.
 */
-.scene {
-    background-color: black;
-    
-}
+
  .text-field{
    -fx-padding:12 0 12 0;
      -FX-width: 25px;
@@ -21,6 +18,7 @@
     -fx-padding:12 0 12 0;
     -fx-text-fill: white;
 }
+
 #borderPane{
     
     -fx-alignment:center;
@@ -28,8 +26,6 @@
 
 #hBoxTop{
     -fx-alignment:center;
-    
-    
     
 }
 
@@ -77,22 +73,9 @@ chart-content {
      fx-border-color:white;
     
  }
- #rectL{
-     
-    -fx-background-color: #34495E; 
-     
-     
- } #rectR{
-     
-    -fx-background-color: #34495E; 
-     
-     
- }
- 
  .chart-plot-background {
   -fx-background-color: #34495E;
 }
-
 
 .chart-vertical-grid-lines {
     -fx-stroke: transparent;
@@ -142,7 +125,7 @@ chart-content {
 }
 
 #waveFormPlay {
-    -fx-background-color: #E3674E;
+    -fx-background-color: #0DB440;
     -fx-background-insets: 0,1,2,3;
     -fx-background-radius: 3,2,2,2;
     -fx-padding: 12 20 12 20;
@@ -150,7 +133,7 @@ chart-content {
     -fx-font-size: 15px;
 }
 #waveFormPlay:pressed {
-    -fx-background-color: #942F19;
+    -fx-background-color: #047526;
     -fx-background-insets: 0,1,2,3;
     -fx-background-radius: 3,2,2,2;
     -fx-padding: 12 20 12 20;
@@ -160,22 +143,16 @@ chart-content {
 
 #oscWave {
     
-    -fx-background-color: #326151;
-    
+    -fx-background-color: #C0392B;
+    -fx-background-size:50 50;
     -fx-background-radius: 2;
-    -width:40px;
-    -height:20px;
-     
     -fx-text-fill: white;
     -fx-font-size: 15px
     }
 #oscWave:pressed {
     
-    -fx-background-color: #103F2F;
+    -fx-background-color: #7D180E;
     -fx-background-radius: 2;
-    -width:40px;
-    -height:20px;
-     
     -fx-text-fill: white;
     -fx-font-size: 15px
     }
@@ -206,15 +183,15 @@ chart-content {
 }
 
 .adsrSlider .slider .thumb{
-     -fx-padding: 10px 13px;
+     -fx-padding: 7px 13px;
     -fx-background-color: #E67E22;
-    -fx-background-radius: 4;
+    -fx-background-radius: 2;
     
 }
 
 .adsrSlider .slider .thumb:pressed {
      
-   -fx-effect: dropshadow( gaussian , blanchedalmond , 2,0,0,0 );
+   -fx-effect: dropshadow( gaussian , blanchedalmond , 1,0,0,0 );
 }
 .adsrSlider .slider .track {
     -fx-border-width: 1px;
@@ -224,3 +201,22 @@ chart-content {
     -fx-border-color: #7F8C8D;
     
 }
+.resSlider{
+-fx-background-insets: 0,1,2,3;
+}.resSlider .slider .thumb{
+    -fx-padding: 7px 4px;
+    -fx-background-color: #E67E22;
+    -fx-background-radius: 1;
+    
+    
+    
+}
+
+.resSlider .slider .track {
+    -fx-background-radius: 1;
+    -fx-background-color: #7F8C8D;
+    -fx-border-color: #7F8C8D;
+    
+}
+
+
