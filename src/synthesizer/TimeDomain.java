@@ -15,10 +15,15 @@ import javafx.scene.chart.XYChart;
 public class TimeDomain  {
  
     double input[];
-    
+    int res=100;
     
     void setInput(double[] in){
     input=in;
+    
+    
+    }
+    void setResolution(int in){
+    res=in;
     
     
     }
@@ -67,17 +72,19 @@ public class TimeDomain  {
         while(xaxis<input.length){
         
         series.getData().add(new XYChart.Data(xaxis, input[samples]));
-        xaxis+=85;
-        samples+=85;
+        xaxis+= res;
+        samples+= res;
         }
         
         
         
        
         lineChart.getData().add(series);
-       
+        lineChart.setPrefWidth(500);
         return lineChart;
     }
  
    
 }
+
+

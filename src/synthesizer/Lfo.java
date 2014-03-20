@@ -13,7 +13,7 @@ public class Lfo {
     double fhz = 440;
     double amp;
     double output [];
-    
+    int freq;
     
     
     
@@ -22,21 +22,25 @@ public class Lfo {
     
     
     public double[] makeSin(double[] input ){
-                sin = new Sine(amp,440);
+                sin = new Sine(amp,freq);
 		return multArray(input,sin.output());
 	}
     public double[] makeSquare(double[] input ){
-                square = new Square(amp,440,1);
+                square = new Square(amp,freq,1);
 		return multArray(input,square.output());
 	}
     public double[] makeTri(double[] input ){
                 
-                triangle = new Triangle(amp,440);
+                triangle = new Triangle(amp,freq);
 		
         return multArray(input,triangle.output());
 	}
     void setAmplitude(double _amp) {
-        amp=amp;
+        amp=_amp;
+    }
+    void setFrequency(int _freq){
+        freq=_freq;
+    
     }
     public  double[] multArray(double[] A,double[] B){
 		double [] C=new double [B.length];
@@ -47,3 +51,4 @@ public class Lfo {
 		return C;
 	}
 }
+

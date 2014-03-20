@@ -4,6 +4,7 @@
  */
 package synthesizer;
 
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -14,17 +15,13 @@ import javafx.scene.chart.XYChart;
  *
  * @author se413006
  */
-public class BarMag {
+public class FreqSpec {
 
     private XYChart.Data<String, Number>[] series1Data;
     double[] magnitudes;
     
-    public void setMag(double [] in) {
+    public void setInput(double [] in) {
         magnitudes = in;
-       /* for (int i = 0; i < series1Data.length; i++) {
-            series1Data[i].setYValue(magnitudes[i] + 60);
-            magnitudes[i]=i+1;
-    }*/
     }
 
     protected BarChart<String, Number> createChart() {
@@ -66,6 +63,13 @@ public class BarMag {
             series1.getData().add(new XYChart.Data<String,Number>(categories[i], magnitudes[i]));
         }
         bc.getData().add(series1);
+        bc.setPrefWidth(500);
         return bc;
     }
+
+    void setAlignment(Pos pos) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
+
+
