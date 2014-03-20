@@ -26,7 +26,7 @@ public class Lfo {
 		return multArray(input,sin.output());
 	}
     public double[] makeSquare(double[] input ){
-                square = new Square(amp,freq,1);
+                square = new Square(amp,freq);
 		return multArray(input,square.output());
 	}
     public double[] makeTri(double[] input ){

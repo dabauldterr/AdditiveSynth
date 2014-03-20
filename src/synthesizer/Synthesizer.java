@@ -89,6 +89,8 @@ public class Synthesizer extends Application {
     BorderPane borderPane;
     File selectedFile;
     FFT fft = new FFT();
+    VBox vbox;
+    
 
     public void start(final Stage primaryStage) {
         try {
@@ -197,7 +199,7 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         Env.setWavIn(synthesisOsc(oscList));
-                         inputFileDouble=Env.envGenNew();
+                       //  inputFileDouble=Env.envGenNew();
                          FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
                          DisplayCharts(synthesisOsc(oscList),MagnitudeFFT);
@@ -239,12 +241,22 @@ public class Synthesizer extends Application {
                         freqAxis=makeFrequencyAxis(44100,128);
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                        for (int i = 0; i < MagnitudeFFT.length; i++) {
+                            
+                        
+                       // System.out.println("index       "+i+ MagnitudeFFT[i]);
+                        }if(oscList.size()>0){
+                            oscList.clear();
+                            
+                        }
+                        hBoxSlider.getChildren().clear();
                         
                         for (int i = 0; i < freqAxis.length; i++) {
                             
                             addOscillator(freqAxis[i],MagnitudeFFT[i]);
+                            
                         }
-
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -259,8 +271,11 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         waveformArray = synthesisOsc(oscBankList);
-                        stdAudio.play(waveformArray);
-                        System.out.println(oscBankList.size());
+                        for (int i = 0; i < waveformArray.length; i++) {
+                            System.out.println(waveformArray[i]);
+                        }
+                        //stdAudio.play(waveformArray);
+                        //System.out.println(oscBankList.size());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -308,7 +323,7 @@ public class Synthesizer extends Application {
 
 
         //add sliders to v box in scroll pane
-        VBox vbox = new VBox();
+         vbox = new VBox();
         vbox.getChildren().addAll(oscList.get(oscList.size() - 1).s, oscList.get(oscList.size() - 1).l);
 
 
@@ -617,6 +632,9 @@ public class Synthesizer extends Application {
 
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
+                        
+                        oscBankList.add(new Sine( amp,freq1));
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -647,7 +665,7 @@ public class Synthesizer extends Application {
 
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        oscBankList.add(new Square(amp, freq1, 0));
+                        oscBankList.add(new Square(amp, freq1));
 
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -663,12 +681,14 @@ public class Synthesizer extends Application {
                     try {
                        amp = Double.parseDouble(fNameFldAmp.getText());
                        freq1 = Double.parseDouble(fNameFld.getText());
-                       oscBankList.add(new Square( amp,freq1,44100));
+                       oscBankList.add(new Saw( amp,freq1,44100));
+                       
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });saw.setId("oscWave");saw.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
+            
             waveformTile.add(saw, 0, 1);
             triangle = new Button();
             triangle.setText("Tri");
@@ -759,8 +779,9 @@ public class Synthesizer extends Application {
                     try {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        oscBankList.add(new Square( amp,freq1,44100));
-                        stdAudio.play(new ModPrime(amp, freq1, 0).output());
+                        oscBankList.add(new Prime(amp, freq1,1));
+                       
+;
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }

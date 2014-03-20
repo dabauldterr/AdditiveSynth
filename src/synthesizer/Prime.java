@@ -44,7 +44,8 @@ public class Prime extends Oscillators {
             Amp = (double) Math.pow(primes[i],-1);
             Amp = 2 * Amp / pi;
             
-            harmonic = sinWave(amp,primes[i] * fhz,1);
+            
+           harmonic = new Sine(amp,(primes[i] * fhz)).output();
             
             harmonicScale = scale(harmonic, Amp);
 

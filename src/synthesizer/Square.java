@@ -11,12 +11,11 @@ package synthesizer;
 public class Square extends Oscillators {
     int Fs =44100;
     double fhz;
-    double phaseShift;
     double amp;
    
-    public Square(double _amp,double _fhz, double _phaseShift){
+    public Square(double _amp,double _fhz){
         fhz=_fhz;
-        phaseShift=_phaseShift;
+        
         amp=_amp;
     }
     
@@ -37,7 +36,7 @@ public class Square extends Oscillators {
             Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
             Amp = 2 * Amp / pi;
             //create a sinewave of frequency k*fhz
-            harmonic = sinWave(amp,k * fhz,1);
+            harmonic = new Sine(amp,(k * fhz)).output();
             //scale(multiply) the harmonic by the Amplitude
             harmonicScale = scale(harmonic, Amp);
 
@@ -48,19 +47,6 @@ public class Square extends Oscillators {
 
         return wave;
     }
-     public double[] sinWave(double amp,double fhz,double timeDurSecs) {
-
-        
-        double[] wave = new double[Fs];
-        double pi = Math.PI;
-        double SampPeriod = (double) 1.0 / Fs;
-        for (int index = 0; index < Fs; index++) {
-            wave[index] =amp* Math.sin((double) 2 * pi * index * fhz * SampPeriod);
-        }
-
-        return wave;
-    }
-
     public double[] addArray(double[] one, double[] two) {
 
         double[] sum = new double[one.length];

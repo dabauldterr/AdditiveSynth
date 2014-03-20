@@ -14,10 +14,10 @@ import javafx.scene.control.Slider;
 public class Sine extends Oscillators {
     int Fs = 44100;
     double amp;
-    int fhz;
+    double fhz;
     Slider s;
  
-  public Sine(double _amp,int _fhz){
+  public Sine(double _amp,double _fhz){
         
         amp = _amp;
         fhz = _fhz;
@@ -36,7 +36,7 @@ public class Sine extends Oscillators {
   public void setFhz(int _fhz) {
         this.fhz = _fhz;
     }
-  public int getFhz(double _fhz) {
+  public double getFhz(double _fhz) {
         return fhz;
     }
   
