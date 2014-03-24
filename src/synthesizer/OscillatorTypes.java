@@ -194,23 +194,7 @@ public class OscillatorTypes {
         return signal;
     }
 
-    public double[] PWM(double pitch,int durSamps, double duty) {
-        double[] PWM = new double[durSamps];
-        double[] saw1 = new double[durSamps];
-        double[] saw2 = new double[durSamps];
-        double[] timeAxis = new double[durSamps];
-        saw1 = sawtooth(pitch,durSamps, 0);
-
-        double phaseShift = 2 * Math.PI * duty;
-        saw2 = sawtooth(pitch,durSamps, phaseShift);
-
-        for (int index = 0; index < durSamps; index++) {
-            timeAxis[index] = index / Fs;
-            PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
-
-        }
-        return PWM;
-    }
+    
     public  double[] triangle(double pitch,int durSamps){
 		double[] tri=new double[durSamps];
 		double[] Triangle=new double[durSamps];
@@ -325,4 +309,22 @@ public class OscillatorTypes {
 		
 		return PWMshift;
 	}
+        public double[] PWM(double pitch,int durSamps, double duty) {
+        double[] PWM = new double[durSamps];
+        double[] saw1 = new double[durSamps];
+        double[] saw2 = new double[durSamps];
+        double[] timeAxis = new double[durSamps];
+        saw1 = sawtooth(pitch,durSamps, 0);
+
+        double phaseShift = 2 * Math.PI * duty;
+        saw2 = sawtooth(pitch,durSamps, phaseShift);
+
+        for (int index = 0; index < durSamps; index++) {
+            timeAxis[index] = index / Fs;
+            PWM[index] = ((saw1[index] - saw2[index]) + 2 * duty) - 1;
+
+        }
+        return PWM;
+    }
+        
 }

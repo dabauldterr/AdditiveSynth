@@ -11,10 +11,7 @@ import javafx.scene.control.Slider;
  * @author se413006
  */
 public class Saw extends Oscillators {
-    int Fs =44100;
-    double fhz;
-    double phaseShift;
-    double amp;
+    
     
    
     public Saw(double _amp,double _fhz, double _phaseShift){
@@ -57,22 +54,5 @@ public class Saw extends Oscillators {
         return wave;
     }
 
-    public double[] addArray(double[] one, double[] two) {
-
-        double[] sum = new double[one.length];
-        for (int i = 0; i < one.length; i++) {
-            sum[i] = one[i] + two[i];
-        }
-        return sum;
-    }
-
-    public double[] scale(double[] harmonic, double Amp) {
-        int harmonicLen = harmonic.length;
-        double[] ScaledHarmonic = new double[harmonicLen];
-
-        for (int index = 0; index < harmonicLen; index++) {
-            ScaledHarmonic[index] = Amp * harmonic[index];
-        }
-        return ScaledHarmonic;
-    }
+   
 }

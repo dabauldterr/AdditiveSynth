@@ -68,11 +68,12 @@ public class Synthesizer extends Application {
           resLabel,
           lfoFreq;
     Button loadBtn,loadOsc,play,sine,pwm,
-           formant,saw,square,triangle,
+           even,saw,square,triangle,
            triangleShift,sawTriangle,trapezoid,
            pwmShift,prime,noise,
            playWavefrom,filterFIR,filterIIR,
-           filterIIROneWeight,mimic,PlayFile;
+           filterIIROneWeight,mimic,PlayFile,
+           clearWaveform,clearScroll;
     Slider resolution,freqLfoSli,ampLfoSli, envAtack,
            envRelease,envSustainTime,envSustainLevel,envDecay;
     FileChooser fileChooser;
@@ -91,8 +92,7 @@ public class Synthesizer extends Application {
     FFT fft = new FFT();
     VBox vbox;
     
-
-    public void start(final Stage primaryStage) {
+   public void start(final Stage primaryStage) {
         try {
             Env = new EnvAdsr(AmpEnvAttack, AmpEnvDecay, AmpEnvSustainTime, AmpEnvSustainLevel, AmpEnvRelease);
             root = new FlowPane();
@@ -147,6 +147,9 @@ public class Synthesizer extends Application {
             borderPane.setRight(freqD); 
             borderPane.setLeft(timeD);
             
+                         
+                         
+            
             loadBtn = new Button("Load File");
             loadBtn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -169,11 +172,13 @@ public class Synthesizer extends Application {
             loadOsc.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    amp = Double.parseDouble(fNameFldAmp.getText());
-                    freq1 = Double.parseDouble(fNameFld.getText());
+                    
                     if (fNameFldAmp.getText().equals("") || fNameFld.getText().equals("")) {
+                        System.out.println("hey input some numbers");
                         FXDialog.showMessageDialog("Please input values for Amp anf Frequency", "Check yourself", Message.INFORMATION);
                     } else {
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
                         addOscillator(freq1, amp);
                         try {
                             
@@ -198,13 +203,19 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        Env.setWavIn(synthesisOsc(oscList));
-                       //  inputFileDouble=Env.envGenNew();
+                         Env.setWavIn(synthesisOsc(oscList));
+                         
+                         inputFileDouble=Env.envGenNew();
+                         filters = new  Filters(inputFileDouble);
                          FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
+                         
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         DisplayCharts(synthesisOsc(oscList),MagnitudeFFT);
-                        stdAudio.play(inputFileDouble);
-                        System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
+                         
+                         DisplayCharts(Env.envGenNew(),MagnitudeFFT);
+                         
+                         stdAudio.play(inputFileDouble);
+                        
+                         System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -218,12 +229,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                       
-                        
-                       // inputFileDouble = Env.envGenNew();
-                        
                         stdAudio.play(Env.envGenNew());
-                     //   System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -237,26 +243,19 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        
                         freqAxis=makeFrequencyAxis(44100,128);
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                        for (int i = 0; i < MagnitudeFFT.length; i++) {
-                            
                         
-                       // System.out.println("index       "+i+ MagnitudeFFT[i]);
+                        for (int i = 0; i < MagnitudeFFT.length; i++) {
                         }if(oscList.size()>0){
                             oscList.clear();
                             
                         }
                         hBoxSlider.getChildren().clear();
-                        
                         for (int i = 0; i < freqAxis.length; i++) {
-                            
                             addOscillator(freqAxis[i],MagnitudeFFT[i]);
-                            
                         }
-                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -271,11 +270,12 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
                         waveformArray = synthesisOsc(oscBankList);
-                        for (int i = 0; i < waveformArray.length; i++) {
-                            System.out.println(waveformArray[i]);
-                        }
-                        //stdAudio.play(waveformArray);
-                        //System.out.println(oscBankList.size());
+                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         stdAudio.play(waveformArray);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -283,7 +283,41 @@ public class Synthesizer extends Application {
             });
             playWavefrom.setId("waveFormPlay");
             loadBtn.setId("loadWave");
-            ampFilter.getChildren().addAll(ampEnvPane(), filterPane(), lfoPane());
+            
+            clearScroll = new Button();
+            clearScroll.setText("clearScroll");
+            clearScroll.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        
+                        DisplayCharts(zeroArray(),zeroArray());
+                        hBoxSlider.getChildren().clear();
+                         oscList.clear();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            clearScroll.setId("sinusoid");
+            
+            clearWaveform = new Button();
+            clearWaveform.setText("clearScroll");
+            clearWaveform.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        DisplayCharts(zeroArray(),zeroArray());
+                         oscBankList.clear();
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            clearWaveform.setId("waveFormPlay");
+            
+            
+            ampFilter.getChildren().addAll(ampEnvPane(), filterPane(), lfoPane(),clearScroll,clearWaveform);
             borderPane.setTop(addHBoxTop());
             borderPane.setCenter(oscillatorPane());
             borderPane.setBottom(addScrollPane());
@@ -351,8 +385,7 @@ public class Synthesizer extends Application {
     public void initOscillators() {
 
 
-//        oscBankList.add(new Sine(ampSine, freq, new Slider(0, 1, ampSine)));
-//        oscBankList.add(new Saw(ampSine,freq,.1,new Slider(0, 1, freq1) ));
+//     
         oscBankList.add(new Pwm(ampSine, freq, 0.15));
 
         oscBankList.get(oscBankList.size() - 1).setSlider(new Slider(1, 1, 1));
@@ -401,10 +434,11 @@ public class Synthesizer extends Application {
     }
     
     public HBox addHBoxTop() {
-            resolution = new Slider(1, 100, 100);
+            resolution = new Slider(1,99,99);
+            
             resLabel = new Label();
             //set to .5, 
-            resLabel.setText(String.format("%.2f",.5));
+            resLabel.setText(String.format("%.2f",98.5));
             resolution.getStyleClass().add("resSlider");
             resolution.setOrientation(Orientation.HORIZONTAL);
             resolution.setMajorTickUnit(10);
@@ -435,9 +469,9 @@ public class Synthesizer extends Application {
 
     public ScrollPane addScrollPane() {
 
-        Image roses = new Image(getClass().getResourceAsStream("dark-metal-texture.jpg"));
+       
         scrollWindow = new ScrollPane();
-       // scrollWindow.setPrefSize(scene.getWidth() - 10, 200);
+       
         scrollWindow.setId("scrollwindow");
         scrollWindow.setContent(hBoxSlider);
         scrollWindow.setPrefSize(scene.getWidth() - 10, 230);
@@ -543,14 +577,17 @@ public class Synthesizer extends Application {
                     if (new_value.intValue() == 0) {
                          System.out.println("zeroth");
                         inputFileDouble = lfo.makeSin(Env.envGenNew());
+                        stdAudio.play(inputFileDouble);
                     }
                     if (new_value.intValue() == 1) {
                         System.out.println("first");
                         inputFileDouble = lfo.makeSquare(Env.envGenNew());
+                        stdAudio.play(inputFileDouble);
                     }
                     if (new_value.intValue() == 2) {
                            System.out.println("second");
                         inputFileDouble = lfo.makeTri(Env.envGenNew());
+                        stdAudio.play(inputFileDouble);
                     }
                 }
             });
@@ -568,58 +605,88 @@ public class Synthesizer extends Application {
          GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
-            filters = new Filters(new Saw(1, 440, 0).output());
+            
 
             filterFIR = new Button();
-            filterFIR.setText("Fir");
+            filterFIR.setText("FIRFilter");
             filterFIR.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        
+                        inputFileDouble=Env.envGenNew();
+                        filters = new  Filters(inputFileDouble);
                         filters.filterFIR();
-                        filters.getFiltered();
+                        inputFileDouble =  filters.getFiltered();
+                      FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(inputFileDouble,MagnitudeFFT);
+                         
+                         stdAudio.play(inputFileDouble);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
             filterPane.add(filterFIR, 0, 0);
+            filterFIR.setId("sinusoid");
 
             filterIIR = new Button();
-            filterIIR.setText("IIR");
+            filterIIR.setText("IIRFilter");
             filterIIR.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        inputFileDouble=Env.envGenNew();
+                         filters = new  Filters(inputFileDouble);
                         filters.filterIIR(weights);
-                        filters.getFiltered();
+                      inputFileDouble = filters.getFiltered();
+                      FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(inputFileDouble,MagnitudeFFT);
+                         
+                         stdAudio.play(inputFileDouble);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
             filterPane.add(filterIIR, 1, 0);
-
+            filterIIR.setId("sinusoid");
             filterIIROneWeight = new Button();
-            filterIIROneWeight.setText("IIR1WT");
+            filterIIROneWeight.setText("IIROneWT");
             filterIIROneWeight.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        inputFileDouble=Env.envGenNew();
+                         filters = new  Filters(inputFileDouble);
                         filters.filterIIROneWeight();
-                        filters.getFiltered();
+                       inputFileDouble = filters.getFiltered();
+                       FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(inputFileDouble,MagnitudeFFT);
+                         
+                         stdAudio.play(inputFileDouble);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
             filterPane.add(filterIIROneWeight, 2, 0);
+            filterIIROneWeight.setId("sinusoid");
             return filterPane;
     }
     
     public GridPane oscillatorPane(){
           GridPane waveformTile = new GridPane();
-        waveformTile.setAlignment(Pos.CENTER);
+          waveformTile.setAlignment(Pos.CENTER);
             waveformTile.setHgap(15);
             waveformTile.setVgap(15);
 
@@ -642,20 +709,25 @@ public class Synthesizer extends Application {
             });
             sine.setId("oscWave"); sine.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
             waveformTile.add(sine, 0, 0);
-            formant = new Button();
-            formant.setText("Fmt");
-            formant.setOnAction(new EventHandler<ActionEvent>() {
+            even = new Button();
+            even.setText("Evn");
+            even.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new Even(amp, freq1));
+                        
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-            formant.setId("oscWave");formant.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
+            even.setId("oscWave");even.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
             
-            waveformTile.add(formant, 1, 0);
+            waveformTile.add(even, 1, 0);
             square = new Button();
             square.setText("Sqr");
             square.setOnAction(new EventHandler<ActionEvent>() {
@@ -672,7 +744,7 @@ public class Synthesizer extends Application {
                     }
                 }
             });square.setId("oscWave");square.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(square, 2, 0);
+            waveformTile.add(square, 0, 1);
             saw = new Button();
             saw.setText("Saw");
             saw.setOnAction(new EventHandler<ActionEvent>() {
@@ -689,7 +761,7 @@ public class Synthesizer extends Application {
                 }
             });saw.setId("oscWave");saw.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
             
-            waveformTile.add(saw, 0, 1);
+            waveformTile.add(saw, 1, 1);
             triangle = new Button();
             triangle.setText("Tri");
             triangle.setOnAction(new EventHandler<ActionEvent>() {
@@ -698,13 +770,13 @@ public class Synthesizer extends Application {
                     try {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        oscBankList.add(new Triangle(amp, freq1));
+                        oscBankList.add(new Triangle(amp, freq1,.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });triangle.setId("oscWave");triangle.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(triangle, 1, 1);
+            waveformTile.add(triangle, 0, 2);
             
             pwm = new Button();
             pwm.setText("Pwm");
@@ -714,20 +786,23 @@ public class Synthesizer extends Application {
                     try {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        //  oscBankList.add(new Square( amp,freq1,44100));
-                        oscBankList.add(new Pwm(amp, freq1, 0.15));
+                          
+                        oscBankList.add(new Pwm(amp, freq1, .15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });pwm.setId("oscWave");pwm.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(pwm, 2, 1);
-            pwmShift = new Button();
+            waveformTile.add(pwm, 1, 2);
+         /*   pwmShift = new Button();
             pwmShift.setText("PSh");
             pwmShift.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new PwmShifted(amp, (int)freq1));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -740,6 +815,10 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new TriangleShifted(amp, (int) freq1,1));
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -752,6 +831,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new SawTriangle(amp, freq1));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -764,13 +846,15 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        // StdAudio.play(new OscillatorTypes().tr(440, 44100,0, x));
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new Trapazoid(amp, freq1,.15));
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });trapezoid.setId("oscWave"); trapezoid.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(trapezoid, 0, 3);
+            waveformTile.add(trapezoid, 0, 3);*/
             prime = new Button();
             prime.setText("Pri");
             prime.setOnAction(new EventHandler<ActionEvent>() {
@@ -787,20 +871,23 @@ public class Synthesizer extends Application {
                     }
                 }
             });prime.setId("oscWave");prime.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(prime, 1, 3);
+            waveformTile.add(prime, 0, 3);
             noise = new Button();
             noise.setText("Noi");
             noise.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        oscBankList.add(new Noise());
+                        amp = Double.parseDouble(fNameFldAmp.getText());
+                        freq1 = Double.parseDouble(fNameFld.getText());
+                        oscBankList.add(new Noise(amp,freq1));
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });noise.setId("oscWave"); noise.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
-            waveformTile.add(noise, 2, 3);
+            waveformTile.add(noise, 1, 3);
     
     return waveformTile;
     
@@ -910,5 +997,4 @@ public class Synthesizer extends Application {
     
     }
 }
-
 

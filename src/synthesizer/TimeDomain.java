@@ -15,7 +15,7 @@ import javafx.scene.chart.XYChart;
 public class TimeDomain  {
  
     double input[];
-    int res=100;
+    int res=99;
     
     void setInput(double[] in){
     input=in;

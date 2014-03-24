@@ -31,7 +31,7 @@ public class Lfo {
 	}
     public double[] makeTri(double[] input ){
                 
-                triangle = new Triangle(amp,freq);
+                triangle = new Triangle(amp,freq,1);
 		
         return multArray(input,triangle.output());
 	}

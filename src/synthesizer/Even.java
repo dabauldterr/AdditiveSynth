@@ -1,4 +1,10 @@
 /*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -8,11 +14,12 @@ package synthesizer;
  *
  * @author se413006
  */
-public class Square extends Oscillators {
- 
-    
+public class Even extends Oscillators {
+    int Fs =44100;
+    double fhz;
+    double amp;
    
-    public Square(double _amp,double _fhz){
+    public Even(double _amp,double _fhz){
         fhz=_fhz;
         
         amp=_amp;
@@ -30,7 +37,7 @@ public class Square extends Oscillators {
         System.out.println("K freq is" + K);
         double[] harmonic = new double[Fs];
 
-        for (int k = 1; k < K; k=k+2) {
+        for (int k = 2; k < K; k=k+2) {
             //compute the amplitude for each sinusoid based on harmonic number k
             Amp = (double) Math.pow(k, -1); //Amp=(1/(double)k);
             Amp = 2 * Amp / pi;
@@ -46,5 +53,5 @@ public class Square extends Oscillators {
 
         return wave;
     }
-    
+ 
 }

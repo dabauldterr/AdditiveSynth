@@ -3,51 +3,40 @@
  * and open the template in the editor.
  */
 package synthesizer;
-
-import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 
 public class Oscillators {
 
     double fhz;
-    double Fs;
+    int Fs = 44100;
     int time;
     double amp;
     int timeSamp;
+    double phaseShift;
     Slider s;
     Slider As;
     Label l;
     Label Al;
     Thread t;
+    double duty = .15;
 
     //pitch frequency, sample rate, length in time, amplitude, 
-    public Oscillators(double _fhz, double _Fs,double _amp, Slider _s, Label _l) {
+    public Oscillators(double _fhz, int _Fs,double _amp, Slider _s, Label _l) {
         fhz = _fhz;
         Fs = _Fs;
         amp = _amp;
         timeSamp = 441000;
         s = _s;
         l = _l;
+       
+        
         
 
     }
 
-  /*  public Oscillators(double _freqHz, double _sampFreq, int _time, int _amp, Slider _s, Label _l, Slider _As, Label _Al) {
-        freqHz = _freqHz;
-        sampFreq = _sampFreq;
-        time = _time;
-        amp = _amp;
-      //  timeSamp = (int) sampFreq * time;
-        s = _s;
-        l = _l;
-        As = _As;
-        Al = _Al;
 
-
-    }*/
-
-    public Oscillators(double _fhz, double _Fs, int _time, double _amp) {
+    public Oscillators(double _fhz, int _Fs, int _time, double _amp) {
         fhz = _fhz;
         Fs = _Fs;
         time = _time;
@@ -58,7 +47,7 @@ public class Oscillators {
 
     }
     
-    public Oscillators(double _fhz, double _Fs,double _amp) {
+    public Oscillators(double _fhz, int _Fs,double _amp) {
         fhz = _fhz;
         Fs = _Fs;
        
@@ -78,6 +67,17 @@ public class Oscillators {
      public double getAmp() {
         return amp;
     } 
+     
+     public void setPhaseShift() { 
+         phaseShift = (2 * Math.PI/2) * duty;
+         
+        
+    }
+   
+     public double getPhaseShift() {
+        return phaseShift;
+    }
+     
      public void setFreq(double _fhz) {
         this.fhz = _fhz;
     }
@@ -144,32 +144,29 @@ public class Oscillators {
         double pi = Math.PI;
         double SampPeriod = (double) 1.0 / Fs;
         for (int index = 0; index < Fs; index++) {
-            wave[index] =amp * Math.sin((double) 2 * pi * index * fhz * SampPeriod);
+            wave[index] =amp * Math.sin(((double) 2 * pi * index * fhz * SampPeriod)+phaseShift);
         }
 
         return wave;
     }
-  /*  public double[] output() {
-        
-        double[] wave = new double[timeSamp];
-        double pi = Math.PI;
-        double SampPeriod = (double) 1.0 / sampFreq;
-        for (int i = 0; i < timeSamp; i++) {
-            wave[i] = amp * (Math.sin((double) 2 * pi * i * freqHz * SampPeriod));
-             System.out.println(wave[i]);
-        }
-        return wave;
 
+    public double[] addArray(double[] one, double[] two) {
+
+        double[] sum = new double[one.length];
+        for (int i = 0; i < one.length; i++) {
+            sum[i] = one[i] + two[i];
+        }
+        return sum;
     }
-*/   
+
+    public double[] scale(double[] harmonic, double Amp) {
+        int harmonicLen = harmonic.length;
+        double[] ScaledHarmonic = new double[harmonicLen];
+
+        for (int index = 0; index < harmonicLen; index++) {
+            ScaledHarmonic[index] = Amp * harmonic[index];
+        }
+        return ScaledHarmonic;
     
-    
-  /*public  double[] addArrayOfArrays(Oscillators os, Oscillators os1){
-        
-     double[] sum = new double[44100];
-     for (int i = 0; i < sum.length; i++) {
-        
-     }
-     return sum;
-     }*/
+}
 }

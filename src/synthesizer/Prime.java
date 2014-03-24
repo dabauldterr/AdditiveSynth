@@ -9,13 +9,9 @@ package synthesizer;
  * @author se413006
  */
 public class Prime extends Oscillators {
-    
-    
-    int Fs =44100;
-    double fhz;
+  
     double phaseShift;
-    double amp;
-   
+    
     public Prime(double _amp,double _fhz, double _phaseShift){
         fhz=_fhz;
         phaseShift=_phaseShift;
@@ -24,7 +20,7 @@ public class Prime extends Oscillators {
     
      public double[] output() {
         double[] wave = new double[Fs];
-        wave = sinWave(amp,fhz,1);
+        wave = new Sine(amp,fhz).output();
         double Amp;
         double[] harmonicScale = new double[Fs];
         
@@ -32,14 +28,14 @@ public class Prime extends Oscillators {
         
         int K = (int) Math.floor(Fs * 0.5 / fhz);
 
-        System.out.println("K freq is" + K);
+       // System.out.println("K freq is" + K);
         double[] harmonic = new double[Fs];
         
          int [] primes = new PrimeSieve().getPrime(K);
          
         for (int i=0;i<primes.length;i++) {
            
-            System.out.println(primes[i]);
+          //  System.out.println(primes[i]);
             
             Amp = (double) Math.pow(primes[i],-1);
             Amp = 2 * Amp / pi;
@@ -53,42 +49,9 @@ public class Prime extends Oscillators {
             wave = addArray(wave, harmonicScale);
             
             }
-            for (int i = 0; i < wave.length; i++) {
-                System.out.println(wave[i]);
-         }
+            
         
         return wave;
     }
-     public double[] sinWave(double amp,double fhz,double timeDurSecs) {
-
-        
-        double[] wave = new double[Fs];
-        double pi = Math.PI;
-        double SampPeriod = (double) 1.0 / Fs;
-        for (int index = 0; index < Fs; index++) {
-            wave[index] =amp* Math.sin((double) 2 * pi * index * fhz * SampPeriod);
-        }
-
-        return wave;
-    }
-
-    public double[] addArray(double[] one, double[] two) {
-
-        double[] sum = new double[one.length];
-        for (int i = 0; i < one.length; i++) {
-            sum[i] = one[i] + two[i];
-        }
-        return sum;
-    }
-
-    public double[] scale(double[] harmonic, double Amp) {
-        int harmonicLen = harmonic.length;
-        double[] ScaledHarmonic = new double[harmonicLen];
-
-        for (int index = 0; index < harmonicLen; index++) {
-            ScaledHarmonic[index] = Amp * harmonic[index];
-        }
-        return ScaledHarmonic;
-    }
-    
+       
 }
