@@ -219,4 +219,13 @@ chart-content {
     
 }
 
-
+#lfos {
+    
+     -fx-background-color: #16A085;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    
+}

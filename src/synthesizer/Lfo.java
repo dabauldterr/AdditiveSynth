@@ -18,11 +18,17 @@ public class Lfo extends Oscillators {
         ampLfo=_amp;
     }
     
+    void setInput(double [] _input){
+    
+    input=_input;
+    
+    }
+    
     void setFrequency(int _freq){
         ampLfo=_freq;
     }
    
-    public double[] makeSin(double[] input ){
+    public double[] makeSin(){
                 sin = new Sine(ampLfo,freqLfo);
 		return multArray(input,sin.output());
 	}

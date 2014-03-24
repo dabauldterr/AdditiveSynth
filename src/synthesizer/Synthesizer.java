@@ -551,96 +551,19 @@ public class Synthesizer extends Application {
                     lfoFreq.setText(String.format("%.2f", new_val));
                 }
             });
-            
-            
-            
-            /*
-            lfoSelect.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-                public void changed(ObservableValue ov, Number value, Number new_value) {
-
-                    if (new_value.intValue() == 0) {
-                         System.out.println("zeroth");
-                         waveformArray=Env.envGenNew();
-                         
-                        waveformArray = lfo.makeSin(Env.envGenNew());
-                        
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        try {
-                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                        } catch (Exception ex) {
-                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                         
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                         DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);
-                    }
-                    if (new_value.intValue() == 1) {
-                       System.out.println("zeroth");
-                         waveformArray=Env.envGenNew();
-                         
-                        waveformArray = lfo.makeSquare(Env.envGenNew());
-                        
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        try {
-                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                        } catch (Exception ex) {
-                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                         
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                         DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);
-                    }
-                    if (new_value.intValue() == 2) {
-                         System.out.println("zeroth");
-                         waveformArray=Env.envGenNew();
-                         
-                        waveformArray = lfo.makePri(Env.envGenNew());
-                        
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        try {
-                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                        } catch (Exception ex) {
-                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                         
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                         DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);
-                    }
-                }
-            });*/
+           
             sineLfo = new Button();
             sineLfo.setText("Sine");
             sineLfo.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
+                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
+                         waveformArray=lfo.multArray(waveformArray, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                         DisplayCharts(waveformArray,MagnitudeFFT);
                          
-                         
-                         DisplayCharts(lfo.makeSin(waveformArray),MagnitudeFFT);
-                         
-                         stdAudio.play(lfo.makeSin(waveformArray));
+                         stdAudio.play(waveformArray);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -655,14 +578,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
+                         waveformArray=lfo.multArray(waveformArray, new Square(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
                          DisplayCharts(waveformArray,MagnitudeFFT);
                          
                          stdAudio.play(waveformArray);
@@ -680,14 +598,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
+                       FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
+                         waveformArray=lfo.multArray(waveformArray, new Prime(ampLfoSli.getValue(), freqLfoSli.getValue(),1).output());
                          DisplayCharts(waveformArray,MagnitudeFFT);
                          
                          stdAudio.play(waveformArray);
@@ -700,11 +613,11 @@ public class Synthesizer extends Application {
             primeLfo.setId("lfos");
             
             lfoPane.add(ampLfoSli,0,0);
-            lfoPane.add(freqLfoSli,1,0);
+            lfoPane.add(freqLfoSli,3,0);
             lfoPane.add(lfoAmp,0,1);
-            lfoPane.add(lfoFreq,1,1);
-            lfoPane.add(sineLfo,2,0);
-            lfoPane.add(primeLfo,2,0);
+            lfoPane.add(lfoFreq,3,0);
+            lfoPane.add(sineLfo,0,2);
+            lfoPane.add(primeLfo,1,2);
             lfoPane.add(squareLfo,2,2);
     
     return lfoPane;
