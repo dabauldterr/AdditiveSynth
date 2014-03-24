@@ -9,8 +9,6 @@ package synthesizer;
  * @author se413006
  */
 public class Prime extends Oscillators {
-  
-    double phaseShift;
     
     public Prime(double _amp,double _fhz, double _phaseShift){
         fhz=_fhz;
@@ -45,12 +43,9 @@ public class Prime extends Oscillators {
             
             harmonicScale = scale(harmonic, Amp);
 
-          
             wave = addArray(wave, harmonicScale);
-            
             }
             
-        
         return wave;
     }
        

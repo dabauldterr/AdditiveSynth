@@ -8,7 +8,7 @@ public class Lfo {
 	
     Sine sin;
     Square square;
-    Triangle triangle;
+    Prime prime;
     double input[];
     double fhz = 440;
     double amp;
@@ -29,11 +29,11 @@ public class Lfo {
                 square = new Square(amp,freq);
 		return multArray(input,square.output());
 	}
-    public double[] makeTri(double[] input ){
+    public double[] makePri(double[] input ){
                 
-                triangle = new Triangle(amp,freq,1);
+                prime = new Prime(amp,freq,1);
 		
-        return multArray(input,triangle.output());
+        return multArray(input,prime.output());
 	}
     void setAmplitude(double _amp) {
         amp=_amp;
