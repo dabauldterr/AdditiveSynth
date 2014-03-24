@@ -21,7 +21,7 @@ public class Oscillators {
     Thread t;
     double duty = .15;
 
-    //pitch frequency, sample rate, length in time, amplitude, 
+
     public Oscillators(double _fhz, int _Fs,double _amp, Slider _s, Label _l) {
         fhz = _fhz;
         Fs = _Fs;
@@ -34,7 +34,6 @@ public class Oscillators {
         
 
     }
-
 
     public Oscillators(double _fhz, int _Fs, int _time, double _amp) {
         fhz = _fhz;
@@ -57,30 +56,31 @@ public class Oscillators {
 
 
     }
+    
     public Oscillators(){}
-
-   
 
     public void setAmp(double _amp) {
         this.amp = _amp;
     }
-     public double getAmp() {
+    
+    public double getAmp() {
         return amp;
     } 
      
-     public void setPhaseShift() { 
+    public void setPhaseShift() { 
          phaseShift = (2 * Math.PI/2) * duty;
          
         
     }
    
-     public double getPhaseShift() {
+    public double getPhaseShift() {
         return phaseShift;
     }
      
-     public void setFreq(double _fhz) {
+    public void setFreq(double _fhz) {
         this.fhz = _fhz;
     }
+    
     public void setSlider(Slider _s) {
         this.s = _s;
     }
@@ -112,8 +112,6 @@ public class Oscillators {
     public void setAmp() {
         this.amp = amp;
     }
-
-    
 
     public double getSamp() {
         return Fs;
@@ -169,4 +167,13 @@ public class Oscillators {
         return ScaledHarmonic;
     
 }
+        
+    public  double[] multArray(double[] A,double[] B){
+		double [] C=new double [B.length];
+		
+		for (int index=0;index<B.length;index++) {
+			C[index]=A[index]*B[index];	
+		}
+		return C;
+	}
 }

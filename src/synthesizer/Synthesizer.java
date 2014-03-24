@@ -73,7 +73,7 @@ public class Synthesizer extends Application {
            pwmShift,prime,noise,
            playWavefrom,filterFIR,filterIIR,
            filterIIROneWeight,mimic,PlayFile,
-           clearWaveform,clearScroll;
+           clearWaveform,clearScroll,primeLfo,sineLfo,squareLfo;
     Slider resolution,freqLfoSli,ampLfoSli, envAtack,
            envRelease,envSustainTime,envSustainLevel,envDecay;
     FileChooser fileChooser;
@@ -382,28 +382,7 @@ public class Synthesizer extends Application {
          });*/
     }
 
-    public void initOscillators() {
-
-
-//     
-        oscBankList.add(new Pwm(ampSine, freq, 0.15));
-
-        oscBankList.get(oscBankList.size() - 1).setSlider(new Slider(1, 1, 1));
-        for (int i = 0; i < oscBankList.size(); i++) {
-            oscBankList.get(oscBankList.size() - 1).getSlider();
-
-        }
-
-
-        new Slider().valueProperty().addListener(new ChangeListener<Number>() {
-            public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
-
-                oscBankList.get(oscBankList.size() - 1).setFreq(new_val.doubleValue());
-
-
-            }
-        });
-    }
+  
 
     public double[] synthesisOsc(ObservableList<Oscillators> l) throws Exception {
         // sample frequency
@@ -534,8 +513,9 @@ public class Synthesizer extends Application {
 
             ChoiceBox lfoSelect = new ChoiceBox();
             lfoSelect.setId("lfo");
-            lfoSelect.getItems().addAll("Sin", "Square", "Triangle");
+            lfoSelect.getItems().addAll("Sin", "Square", "Prime");
             lfoSelect.getSelectionModel().selectFirst();
+            
             lfo = new Lfo();
             lfo.setAmplitude(.5);
             lfo.setFrequency(400);
@@ -571,31 +551,161 @@ public class Synthesizer extends Application {
                     lfoFreq.setText(String.format("%.2f", new_val));
                 }
             });
+            
+            
+            
+            /*
             lfoSelect.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
                 public void changed(ObservableValue ov, Number value, Number new_value) {
 
                     if (new_value.intValue() == 0) {
                          System.out.println("zeroth");
-                        inputFileDouble = lfo.makeSin(Env.envGenNew());
-                        stdAudio.play(inputFileDouble);
+                         waveformArray=Env.envGenNew();
+                         
+                        waveformArray = lfo.makeSin(Env.envGenNew());
+                        
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        try {
+                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                        } catch (Exception ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         
+                         stdAudio.play(waveformArray);
                     }
                     if (new_value.intValue() == 1) {
-                        System.out.println("first");
-                        inputFileDouble = lfo.makeSquare(Env.envGenNew());
-                        stdAudio.play(inputFileDouble);
+                       System.out.println("zeroth");
+                         waveformArray=Env.envGenNew();
+                         
+                        waveformArray = lfo.makeSquare(Env.envGenNew());
+                        
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        try {
+                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                        } catch (Exception ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         
+                         stdAudio.play(waveformArray);
                     }
                     if (new_value.intValue() == 2) {
-                           System.out.println("second");
-                        inputFileDouble = lfo.makePri(Env.envGenNew());
-                        stdAudio.play(inputFileDouble);
+                         System.out.println("zeroth");
+                         waveformArray=Env.envGenNew();
+                         
+                        waveformArray = lfo.makePri(Env.envGenNew());
+                        
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        try {
+                            FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                        } catch (Exception ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         
+                         stdAudio.play(waveformArray);
+                    }
+                }
+            });*/
+            sineLfo = new Button();
+            sineLfo.setText("Sine");
+            sineLfo.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        waveformArray=Env.envGenNew();
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         
+                         DisplayCharts(lfo.makeSin(waveformArray),MagnitudeFFT);
+                         
+                         stdAudio.play(lfo.makeSin(waveformArray));
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-            lfoPane.add(lfoSelect,2,0);
+           
+            sineLfo.setId("lfos");
+
+            squareLfo = new Button();
+            squareLfo.setText("Square");
+            squareLfo.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        waveformArray=Env.envGenNew();
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         
+                         stdAudio.play(waveformArray);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            
+            squareLfo.setId("lfos");
+            
+            primeLfo = new Button();
+            primeLfo.setText("Prime");
+            primeLfo.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        waveformArray=Env.envGenNew();
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                         
+                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                         
+                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         
+                         stdAudio.play(waveformArray);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            
+            primeLfo.setId("lfos");
+            
             lfoPane.add(ampLfoSli,0,0);
             lfoPane.add(freqLfoSli,1,0);
             lfoPane.add(lfoAmp,0,1);
             lfoPane.add(lfoFreq,1,1);
+            lfoPane.add(sineLfo,2,0);
+            lfoPane.add(primeLfo,2,0);
+            lfoPane.add(squareLfo,2,2);
     
     return lfoPane;
     

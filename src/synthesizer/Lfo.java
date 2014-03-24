@@ -4,51 +4,39 @@
  */
 package synthesizer;
 
-public class Lfo {
+public class Lfo extends Oscillators {
 	
     Sine sin;
     Square square;
     Prime prime;
     double input[];
-    double fhz = 440;
-    double amp;
+    double ampLfo;
     double output [];
-    int freq;
+    int freqLfo;
+   
+    void setAmplitude(double _amp) {
+        ampLfo=_amp;
+    }
     
-    
-    
-    
-    
-    
-    
+    void setFrequency(int _freq){
+        ampLfo=_freq;
+    }
+   
     public double[] makeSin(double[] input ){
-                sin = new Sine(amp,freq);
+                sin = new Sine(ampLfo,freqLfo);
 		return multArray(input,sin.output());
 	}
+    
     public double[] makeSquare(double[] input ){
-                square = new Square(amp,freq);
+                square = new Square(ampLfo,freqLfo);
 		return multArray(input,square.output());
 	}
+    
     public double[] makePri(double[] input ){
                 
-                prime = new Prime(amp,freq,1);
+                prime = new Prime(ampLfo,freqLfo,1);
 		
         return multArray(input,prime.output());
-	}
-    void setAmplitude(double _amp) {
-        amp=_amp;
-    }
-    void setFrequency(int _freq){
-        freq=_freq;
-    
-    }
-    public  double[] multArray(double[] A,double[] B){
-		double [] C=new double [B.length];
-		
-		for (int index=0;index<B.length;index++) {
-			C[index]=A[index]*B[index];	
-		}
-		return C;
 	}
 }
 
