@@ -30,11 +30,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import tabs.FXDialog;
-import tabs.Message;
+
 
 public class Synthesizer extends Application {
     
@@ -50,7 +50,7 @@ public class Synthesizer extends Application {
     double[] weights = {1.9802, -0.9999};
     double[] temp,waveformArray,finalOut,
             MagnitudeFFT,inputFileDouble,inputFileBytes,
-            freqAxis,inputFileScaled;
+            freqAxis,inputFileScaled,lfoTemp;
     ObservableList<Oscillators> oscList = FXCollections.observableArrayList();
     ObservableList<Oscillators> oscBankList = FXCollections.observableArrayList();
     ArrayList<Float> waveFileAnalysis = new ArrayList();
@@ -174,8 +174,8 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     
                     if (fNameFldAmp.getText().equals("") || fNameFld.getText().equals("")) {
-                        System.out.println("hey input some numbers");
-                        FXDialog.showMessageDialog("Please input values for Amp anf Frequency", "Check yourself", Message.INFORMATION);
+                        System.out.println("Hey, input some numbers");
+                       
                     } else {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
@@ -205,15 +205,15 @@ public class Synthesizer extends Application {
                     try {
                          Env.setWavIn(synthesisOsc(oscList));
                          
-                         inputFileDouble=Env.envGenNew();
+                         finalOut=Env.envGenNew();
                         
                          FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
                          
                          MagnitudeFFT = SpecMagnitude(FFToutput);
                          
-                         DisplayCharts(Env.envGenNew(),MagnitudeFFT);
+                         DisplayCharts(finalOut,MagnitudeFFT);
                          
-                         stdAudio.play(inputFileDouble);
+                         stdAudio.play(finalOut);
                         
                          System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
@@ -243,7 +243,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        freqAxis=makeFrequencyAxis(44100,128);
+                        freqAxis=makeFrequencyAxis(44100,64);
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
                         
@@ -407,6 +407,7 @@ public class Synthesizer extends Application {
     }
     
     public VBox addRes(){
+        
     VBox vbox = new VBox();
             resolution = new Slider(1,99,99);
             
@@ -424,8 +425,13 @@ public class Synthesizer extends Application {
                     resLabel.setText(String.format("%.2f", new_val));
                 }
             });
-    
-    vbox.getChildren().addAll(resolution,resLabel);
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText(
+                    "\nThis changes the resolution\n" +
+                    " of the time domain graph\n");
+            tooltip.setId("tooltip");
+            resolution.setTooltip(tooltip);
+            vbox.getChildren().addAll(resolution,resLabel);
      return vbox;
     }
     
@@ -536,7 +542,7 @@ public class Synthesizer extends Application {
                 }
             });
             
-            freqLfoSli = new Slider(1, 999,0);
+            freqLfoSli = new Slider(1,999,500);
                    lfoFreq = new Label();
                    lfoFreq.setText(String.format("%.2f",.0));
             freqLfoSli.setBlockIncrement(15);
@@ -551,7 +557,21 @@ public class Synthesizer extends Application {
                     lfoFreq.setText(String.format("%.2f", new_val));
                 }
             });
-           
+           Tooltip tooltip1 = new Tooltip();
+            tooltip1.setText(
+                    "\nThis changes the frequency\n" +
+                    " of the lfo\n");
+            tooltip1.setId("tooltip");
+            freqLfoSli.setTooltip(tooltip1);
+            
+            Tooltip tooltip2 = new Tooltip();
+            tooltip2.setText(
+                    "\nThis changes the amplitude\n" +
+                    " of the lfo\n");
+            tooltip2.setId("tooltip");
+            ampLfoSli.setTooltip(tooltip2);
+            
+            
             sineLfo = new Button();
             sineLfo.setText("Sine");
             sineLfo.setOnAction(new EventHandler<ActionEvent>() {
@@ -560,8 +580,8 @@ public class Synthesizer extends Application {
                     try {
                          FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         waveformArray=lfo.multArray(waveformArray, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
-                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         lfoTemp=lfo.multArray(waveformArray, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                         DisplayCharts(lfoTemp,MagnitudeFFT);
                          
                          stdAudio.play(waveformArray);
                     } catch (Exception ex) {
@@ -580,10 +600,10 @@ public class Synthesizer extends Application {
                     try {
                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         waveformArray=lfo.multArray(waveformArray, new Square(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
-                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         lfoTemp=lfo.multArray(waveformArray, new Square(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                         DisplayCharts(lfoTemp,MagnitudeFFT);
                          
-                         stdAudio.play(waveformArray);
+                         stdAudio.play(lfoTemp);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -600,10 +620,10 @@ public class Synthesizer extends Application {
                     try {
                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         waveformArray=lfo.multArray(waveformArray, new Prime(ampLfoSli.getValue(), freqLfoSli.getValue(),1).output());
-                         DisplayCharts(waveformArray,MagnitudeFFT);
+                         lfoTemp=lfo.multArray(waveformArray, new Prime(ampLfoSli.getValue(), freqLfoSli.getValue(),1).output());
+                         DisplayCharts(lfoTemp,MagnitudeFFT);
                          
-                         stdAudio.play(waveformArray);
+                         stdAudio.play(lfoTemp);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -615,7 +635,7 @@ public class Synthesizer extends Application {
             lfoPane.add(ampLfoSli,0,0);
             lfoPane.add(freqLfoSli,3,0);
             lfoPane.add(lfoAmp,0,1);
-            lfoPane.add(lfoFreq,3,0);
+            lfoPane.add(lfoFreq,3,1);
             lfoPane.add(sineLfo,0,2);
             lfoPane.add(primeLfo,1,2);
             lfoPane.add(squareLfo,2,2);
@@ -631,7 +651,7 @@ public class Synthesizer extends Application {
             
 
             filterFIR = new Button();
-            filterFIR.setText("FIRFilter");
+            filterFIR.setText("FIR");
             filterFIR.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -653,10 +673,10 @@ public class Synthesizer extends Application {
                 }
             });
             filterPane.add(filterFIR, 0, 0);
-            filterFIR.setId("sinusoid");
+            filterFIR.setId("filter");
 
             filterIIR = new Button();
-            filterIIR.setText("IIRFilter");
+            filterIIR.setText("IIR");
             filterIIR.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -678,9 +698,9 @@ public class Synthesizer extends Application {
                 }
             });
             filterPane.add(filterIIR, 1, 0);
-            filterIIR.setId("sinusoid");
+            filterIIR.setId("filter");
             filterIIROneWeight = new Button();
-            filterIIROneWeight.setText("IIROneWT");
+            filterIIROneWeight.setText("IIRWeight");
             filterIIROneWeight.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
@@ -702,7 +722,7 @@ public class Synthesizer extends Application {
                 }
             });
             filterPane.add(filterIIROneWeight, 2, 0);
-            filterIIROneWeight.setId("sinusoid");
+            filterIIROneWeight.setId("filter");
             return filterPane;
     }
     
@@ -902,7 +922,7 @@ public class Synthesizer extends Application {
                     try {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        oscBankList.add(new Noise(amp,freq1));
+                        oscBankList.add(new Noise());
                         
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -1013,7 +1033,36 @@ public class Synthesizer extends Application {
             });
             ampEnvPane.add(envRelease, 4, 0);
             ampEnvPane.add(relLabel, 4, 1);
-    
+            
+            Tooltip tooltip = new Tooltip();
+            tooltip.setText(
+                    "\nThis changes the attack\n");
+            tooltip.setId("tooltip");
+            envAtack.setTooltip(tooltip);
+            
+            Tooltip tooltip1 = new Tooltip();
+            tooltip1.setText(
+                    "\nThis changes the decay\n");
+            tooltip1.setId("tooltip");
+            envDecay.setTooltip(tooltip1);
+            
+            Tooltip tooltip2 = new Tooltip();
+            tooltip2.setText(
+                    "\nThis changes the sustain Level\n");
+            tooltip2.setId("tooltip");
+            envSustainLevel.setTooltip(tooltip2);
+            
+            Tooltip tooltip3 = new Tooltip();
+            tooltip3.setText(
+                    "\nThis changes the sustain Time\n");
+            tooltip3.setId("tooltip");
+            envSustainTime.setTooltip(tooltip3);
+            
+            Tooltip tooltip4 = new Tooltip();
+            tooltip4.setText(
+                    "\nThis changes the Release\n");
+            tooltip4.setId("tooltip");
+            envRelease.setTooltip(tooltip4);
     
     return ampEnvPane;
     

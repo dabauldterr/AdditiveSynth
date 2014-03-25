@@ -229,3 +229,26 @@ chart-content {
     -fx-font-size: 15px;
     
 }
+#tooltip{
+     -fx-background-color: #34495E;
+     -fx-font-size: 15px;
+    
+    
+    
+}
+#filter {
+    -fx-background-color:#E67E22;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
+#filter:pressed {
+    -fx-background-color:#E67F33;
+    -fx-background-insets: 0,1,2,3;
+    -fx-background-radius: 3,2,2,2;
+    -fx-padding: 12 20 12 20;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}

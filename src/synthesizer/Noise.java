@@ -11,28 +11,18 @@ package synthesizer;
 public class Noise extends Oscillators{
    
    
-   public Noise(double _amp,double _fhz){
-        fhz=_fhz;
-        
-        amp=_amp;
+   public Noise(){
+   
     }
    
    
     public double[] output() {
-        double[] wave = new double[Fs];
+        double[] signal = new double[44100];
 
-        int K = (int) Math.floor(Fs * 0.5);
-        double[] harmonic = new double[Fs];
-
-        for (int i = 1; i < K; i++) {
-
-            harmonic = new Sine(amp * (2 * (double) Math.random() - 1400),fhz).output();
-
-            wave = scale(harmonic, 1);
-
-
+        for (int i = 0; i < signal.length; i++) {
+            signal[i] = 1 * (2 * (double) Math.random() - 1);
         }
 
-        return wave;
+        return signal;
     }
 }
