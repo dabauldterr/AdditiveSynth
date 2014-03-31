@@ -103,7 +103,7 @@ public class EnvAdsr{
 	int sustainSamples=(int)(Fs*sustainTime);
         int totalTime = (int) (Fs*release);
         
-        output = new double[totalTime+1];
+        output = new double[totalTime];
        // input = new double[totalTime+1];
       //  System.out.println("att=" + attackSamples + " dec=" + decaySamples + " sus=" + sustainSamples + " total=" + totalTime);
     
@@ -122,9 +122,9 @@ public class EnvAdsr{
 		envValue=zetaR*envValue;
 		}
 		output[envIndex]=envValue;
-             // System.out.println(output[envIndex]);
+             
 	}
-        // System.out.println(wavIn.length);
+        System.out.println(wavIn.length+"         "+ output.length);
         return multArray(wavIn, output);
        
 	

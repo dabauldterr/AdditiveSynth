@@ -143,7 +143,7 @@ chart-content {
 
 #oscWave {
     
-    -fx-background-color: #C0392B;
+    -fx-background-color: #0DB440;
     -fx-background-size:50 50;
     -fx-background-radius: 2;
     -fx-text-fill: white;
@@ -151,7 +151,7 @@ chart-content {
     }
 #oscWave:pressed {
     
-    -fx-background-color: #7D180E;
+    -fx-background-color: #047526;
     -fx-background-radius: 2;
     -fx-text-fill: white;
     -fx-font-size: 15px
@@ -237,7 +237,7 @@ chart-content {
     
 }
 #filter {
-    -fx-background-color:#E67E22;
+    -fx-background-color:indianred;
     -fx-background-insets: 0,1,2,3;
     -fx-background-radius: 3,2,2,2;
     -fx-padding: 12 20 12 20;
@@ -245,7 +245,7 @@ chart-content {
     -fx-font-size: 15px;
 }
 #filter:pressed {
-    -fx-background-color:#E67F33;
+    -fx-background-color:sienna;
     -fx-background-insets: 0,1,2,3;
     -fx-background-radius: 3,2,2,2;
     -fx-padding: 12 20 12 20;

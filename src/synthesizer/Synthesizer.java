@@ -24,14 +24,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -39,7 +37,7 @@ import javafx.scene.layout.VBox;
 public class Synthesizer extends Application {
     
     int freq;
-    double AmpEnvAttack=0;
+    double AmpEnvAttack=.5;
     double AmpEnvDecay=.5;
     double AmpEnvSustainTime=.5;
     double AmpEnvSustainLevel=1;
@@ -228,8 +226,8 @@ public class Synthesizer extends Application {
             PlayFile.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    try {
-                        stdAudio.play(Env.envGenNew());
+                    try { if (selectedFile != null){
+                        stdAudio.read(selectedFile.getAbsolutePath());}
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -412,12 +410,13 @@ public class Synthesizer extends Application {
             resolution = new Slider(1,99,99);
             
             resLabel = new Label();
+            resLabel.setMinWidth(60);
             //set to .5, 
             resLabel.setText(String.format("%.2f",98.5));
             resolution.setOrientation(Orientation.VERTICAL);
             resolution.setBlockIncrement(15);
             resolution.maxHeight(60);
-            resolution.minWidth(30);
+            resolution.minWidth(100);
             resolution.getStyleClass().add("adsrSlider");
             resolution.valueProperty().addListener(new ChangeListener<Number>() {
                 public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
@@ -545,9 +544,10 @@ public class Synthesizer extends Application {
             freqLfoSli = new Slider(1,999,500);
                    lfoFreq = new Label();
                    lfoFreq.setText(String.format("%.2f",.0));
+                   lfoFreq.setMinWidth(60);
             freqLfoSli.setBlockIncrement(15);
             freqLfoSli.maxHeight(60);
-            freqLfoSli.minWidth(30);
+            freqLfoSli.minWidth(120);
             freqLfoSli.getStyleClass().add("adsrSlider");
             freqLfoSli.setOrientation(Orientation.VERTICAL);
             freqLfoSli.valueProperty().addListener(new ChangeListener<Number>() {
