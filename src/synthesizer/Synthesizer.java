@@ -14,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -30,6 +31,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -314,7 +317,7 @@ public class Synthesizer extends Application {
             });
             clearWaveform.setId("waveFormPlay");
             
-            
+            System.out.println("width"+ ampEnvPane().getWidth()+"height"+ampEnvPane().getHeight());
             ampFilter.getChildren().addAll(ampEnvPane(), filterPane(), lfoPane(),clearScroll,clearWaveform,addRes());
             borderPane.setTop(addHBoxTop());
             borderPane.setCenter(oscillatorPane());
@@ -942,7 +945,13 @@ public class Synthesizer extends Application {
             ampEnvPane = new GridPane();
             ampEnvPane.setHgap(15);
             ampEnvPane.setVgap(5);
-
+            ImageView imageView = new ImageView(new Image(getClass()
+            .getResourceAsStream("adsr.png"), 0, 65, true, true));
+            ampEnvPane.setHalignment(imageView, HPos.LEFT);
+            ampEnvPane.setColumnSpan(imageView, 5);
+            ampEnvPane.setRowSpan(imageView, 2);
+            ampEnvPane.setId("grid");
+            
             envAtack = new Slider(0, 1, .5);
             attackLabel = new Label();
             attackLabel.setText(String.format("%.2f", .5));
