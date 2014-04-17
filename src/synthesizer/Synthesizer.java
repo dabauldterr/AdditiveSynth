@@ -38,7 +38,7 @@ import javafx.scene.layout.VBox;
 
 
 public class Synthesizer extends Application {
-    
+    boolean FIR,IIR,IIROneWeight;
     int freq;
     double AmpEnvAttack=.5;
     double AmpEnvDecay=.5;
@@ -95,6 +95,9 @@ public class Synthesizer extends Application {
     
    public void start(final Stage primaryStage) {
         try {
+            FIR=false;
+            IIR= false;
+            IIROneWeight= false;
             Env = new EnvAdsr(AmpEnvAttack, AmpEnvDecay, AmpEnvSustainTime, AmpEnvSustainLevel, AmpEnvRelease);
             root = new FlowPane();
             scene = new Scene(root, 1280, 700);
@@ -273,10 +276,27 @@ public class Synthesizer extends Application {
                         Env.setWavIn(synthesisOsc(oscBankList));
                         waveformArray = synthesisOsc(oscBankList);
                         waveformArray=Env.envGenNew();
+                        if(IIROneWeight){
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIROneWeight();
+                        waveformArray = filters.getFiltered();
+                        }
+                        if(IIR){
+                        filters = new  Filters(waveformArray);
+                        filters.filterIIR(weights);
+                        waveformArray = filters.getFiltered();
+                        }
+                        if(FIR){
+                        filters = new  Filters(waveformArray);
+                        filters.filterFIR();
+                        waveformArray = filters.getFiltered();
+                        }
+                        
                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
                         DisplayCharts(waveformArray,MagnitudeFFT);
                         stdAudio.play(waveformArray);
+                    
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -659,17 +679,20 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        waveformArray=Env.envGenNew();
+                        
+                        IIROneWeight=true;
+                      /*  waveformArray=Env.envGenNew();
                         filters = new  Filters(waveformArray);
                         filters.filterIIROneWeight();
                         waveformArray = filters.getFiltered();
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
+                    */
+                    //    FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                          
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                     //    MagnitudeFFT = SpecMagnitude(FFToutput);
                          
-                         DisplayCharts(waveformArray,MagnitudeFFT);
+                      //   DisplayCharts(waveformArray,MagnitudeFFT);
                          
-                         stdAudio.play(waveformArray);
+                      //   stdAudio.play(waveformArray);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -684,7 +707,10 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        waveformArray=Env.envGenNew();
+                            
+                            IIR=true;
+                            
+                        /* waveformArray=Env.envGenNew();
                         filters = new  Filters(waveformArray);
                         filters.filterIIROneWeight();
                         waveformArray = filters.getFiltered();
@@ -694,7 +720,7 @@ public class Synthesizer extends Application {
                          
                          DisplayCharts(waveformArray,MagnitudeFFT);
                          
-                         stdAudio.play(waveformArray);
+                         stdAudio.play(waveformArray);*/
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -708,6 +734,9 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
+                      
+                        IIROneWeight=true;
+                        /*
                         waveformArray=Env.envGenNew();
                         filters = new  Filters(waveformArray);
                         filters.filterIIROneWeight();
@@ -718,7 +747,7 @@ public class Synthesizer extends Application {
                          
                          DisplayCharts(waveformArray,MagnitudeFFT);
                          
-                         stdAudio.play(waveformArray);
+                         stdAudio.play(waveformArray);*/
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -945,11 +974,7 @@ public class Synthesizer extends Application {
             ampEnvPane = new GridPane();
             ampEnvPane.setHgap(15);
             ampEnvPane.setVgap(5);
-            ImageView imageView = new ImageView(new Image(getClass()
-            .getResourceAsStream("adsr.png"), 0, 65, true, true));
-            ampEnvPane.setHalignment(imageView, HPos.LEFT);
-            ampEnvPane.setColumnSpan(imageView, 5);
-            ampEnvPane.setRowSpan(imageView, 2);
+            
             ampEnvPane.setId("grid");
             
             envAtack = new Slider(0, 1, .5);
