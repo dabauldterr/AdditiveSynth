@@ -252,3 +252,11 @@ chart-content {
     -fx-text-fill: white;
     -fx-font-size: 15px;
 }
+
+#grid{
+    -fx-background-image: url("adsr.png");
+    -fx-background-size: 230 130;
+    -fx-background-repeat: no-repeat;
+    
+    
+}
