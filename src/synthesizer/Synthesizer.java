@@ -63,11 +63,8 @@ public class Synthesizer extends Application {
     TextField fNameFldAmp,fNameFld;
     String fileName,file;
     Label fNameLbl,fileLabel,attackLabel,decayLabel,
-          susLevLabel,
-          susTimeLabel,
-          relLabel,
-          resLabel,
-          lfoFreq;
+          susLevLabel,susTimeLabel,relLabel,
+          resLabel,firstWeightlabel,secondWeightlabel,lfoFreq;
     Button loadBtn,loadOsc,play,sine,pwm,
            even,saw,square,triangle,
            triangleShift,sawTriangle,trapezoid,
@@ -75,8 +72,9 @@ public class Synthesizer extends Application {
            playWavefrom,filterFIR,filterIIR,
            filterIIROneWeight,mimic,PlayFile,
            clearWaveform,clearScroll,primeLfo,sineLfo,squareLfo;
-    Slider resolution,freqLfoSli,ampLfoSli, envAtack,
-           envRelease,envSustainTime,envSustainLevel,envDecay;
+    Slider resolution,freqLfoSli,ampLfoSli, envAtack,firstWeightSlider,
+           envRelease,envSustainTime,envSustainLevel,envDecay,
+            secondWeightSlider;
     FileChooser fileChooser;
     Oscillators additive;
     EnvAdsr Env;
@@ -679,20 +677,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        
                         IIROneWeight=true;
-                      /*  waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                    */
-                    //    FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
-                     //    MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                      //   DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                      //   stdAudio.play(waveformArray);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -707,20 +692,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                            
                             IIR=true;
-                            
-                        /* waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                         DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);*/
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -734,20 +706,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                      
                         IIROneWeight=true;
-                        /*
-                        waveformArray=Env.envGenNew();
-                        filters = new  Filters(waveformArray);
-                        filters.filterIIROneWeight();
-                        waveformArray = filters.getFiltered();
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         
-                         DisplayCharts(waveformArray,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);*/
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -755,6 +714,44 @@ public class Synthesizer extends Application {
             });
             filterPane.add(filterIIROneWeight, 2, 0);
             filterIIROneWeight.setId("filter");
+            
+            firstWeightSlider = new Slider(0, 2, 1.9999);
+            firstWeightlabel = new Label();
+            firstWeightlabel.setText(String.format("%.4f", .5));
+            firstWeightSlider.getStyleClass().add("adsrSlider");
+            firstWeightSlider.setOrientation(Orientation.VERTICAL);
+            firstWeightSlider.setBlockIncrement(15);
+            firstWeightSlider.maxHeight(70);
+            firstWeightSlider.minWidth(20);
+            firstWeightSlider.valueProperty().addListener(new ChangeListener<Number>() {
+                public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+
+                    weights[0]=new_val.doubleValue();
+                    firstWeightlabel.setText(String.format("%.2f", new_val));
+                }
+            });
+            filterPane.add(firstWeightSlider, 2, 1);
+            filterPane.add(firstWeightlabel, 2, 2);
+            
+            secondWeightSlider = new Slider(-0.9999, 2, 1.9999);
+            secondWeightlabel = new Label();
+            secondWeightlabel.setText(String.format("%.3f", .5));
+            secondWeightSlider.getStyleClass().add("adsrSlider");
+            secondWeightSlider.setOrientation(Orientation.VERTICAL);
+            secondWeightSlider.setBlockIncrement(15);
+            secondWeightSlider.maxHeight(70);
+            secondWeightSlider.minWidth(20);
+            secondWeightSlider.valueProperty().addListener(new ChangeListener<Number>() {
+                public void changed(ObservableValue<? extends Number> ov, Number old_val, Number new_val) {
+
+                    weights[1]=new_val.doubleValue();
+                    secondWeightlabel.setText(String.format("%.4f", new_val));
+                }
+            });
+            filterPane.add(secondWeightSlider, 3, 1);
+            filterPane.add(secondWeightlabel, 3, 2);
+            
+            
             return filterPane;
     }
     
