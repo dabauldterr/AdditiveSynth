@@ -47,11 +47,11 @@ public class Synthesizer extends Application {
     double AmpEnvRelease=1;
     double freq1,ampSine;
     double amp,AmpEnv;
-    double[][] FFToutput;
+    double[][] FFToutput, peaksOut;
     double[] weights = {1.9802, -0.9999};
     double[] temp,waveformArray,finalOut,
             MagnitudeFFT,inputFileDouble,inputFileBytes,
-            freqAxis,inputFileScaled,lfoTemp;
+            freqAxis,inputFileScaled,lfoTemp,magPeaks;
     ObservableList<Oscillators> oscList = FXCollections.observableArrayList();
     ObservableList<Oscillators> oscBankList = FXCollections.observableArrayList();
     ArrayList<Float> waveFileAnalysis = new ArrayList();
@@ -212,8 +212,11 @@ public class Synthesizer extends Application {
                          FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
                          
                          MagnitudeFFT = SpecMagnitude(FFToutput);
+                         peaksOut= Peaks.findP(MagnitudeFFT);
+                       // System.arraycopy(peaksOut[0], 0, magPeaks, 0, 441000);
                          
-                         DisplayCharts(finalOut,MagnitudeFFT);
+                        
+                       //  DisplayCharts(finalOut,magPeaks);
                          
                          stdAudio.play(finalOut);
                         
@@ -231,7 +234,7 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try { if (selectedFile != null){
-                        stdAudio.read(selectedFile.getAbsolutePath());}
+                        stdAudio.play(selectedFile.getAbsolutePath());}
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -248,7 +251,7 @@ public class Synthesizer extends Application {
                         freqAxis=makeFrequencyAxis(44100,64);
                         FFToutput = fft.doFFT(inputFileDouble, 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                        
+                        peaksOut= Peaks.findP(MagnitudeFFT);
                         for (int i = 0; i < MagnitudeFFT.length; i++) {
                         }if(oscList.size()>0){
                             oscList.clear();
@@ -256,7 +259,7 @@ public class Synthesizer extends Application {
                         }
                         hBoxSlider.getChildren().clear();
                         for (int i = 0; i < freqAxis.length; i++) {
-                            addOscillator(freqAxis[i],MagnitudeFFT[i]);
+                            addOscillator(peaksOut[1][i],peaksOut[0][i]);
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -841,7 +844,9 @@ public class Synthesizer extends Application {
                     try {
                         amp = Double.parseDouble(fNameFldAmp.getText());
                         freq1 = Double.parseDouble(fNameFld.getText());
-                        oscBankList.add(new Triangle(amp, freq1,.15));
+                        //oscBankList.add(new Triangle(amp, freq1,.15));
+                        oscBankList.add(new Tri(amp, freq1));
+                           
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
