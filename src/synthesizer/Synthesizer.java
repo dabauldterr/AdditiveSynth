@@ -5,9 +5,11 @@ import java.util.logging.Logger;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.application.Application;
+import static javafx.application.Application.launch;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,10 +37,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 
 public class Synthesizer extends Application {
-    boolean FIR,IIR,IIROneWeight;
+    boolean FIR,IIR,IIROneWeight,DIO,SINLFO,TRILFO,SAWLFO;
     int freq;
     double AmpEnvAttack=.5;
     double AmpEnvDecay=.5;
@@ -66,9 +71,9 @@ public class Synthesizer extends Application {
           susLevLabel,susTimeLabel,relLabel,
           resLabel,firstWeightlabel,secondWeightlabel,lfoFreq;
     Button loadBtn,loadOsc,play,sine,pwm,
-           even,saw,square,triangle,
+           even,saw,square,triangle,diode,
            triangleShift,sawTriangle,trapezoid,
-           pwmShift,prime,noise,
+           pwmShift,prime,noise,saveAdditive,saveWave,
            playWavefrom,filterFIR,filterIIR,
            filterIIROneWeight,mimic,PlayFile,
            clearWaveform,clearScroll,primeLfo,sineLfo,squareLfo;
@@ -90,12 +95,18 @@ public class Synthesizer extends Application {
     File selectedFile;
     FFT fft = new FFT();
     VBox vbox;
+    Date date;
     
    public void start(final Stage primaryStage) {
         try {
+            date = new Date();
             FIR=false;
             IIR= false;
             IIROneWeight= false;
+            DIO=false;
+            SINLFO=false;
+            TRILFO=false;
+            SAWLFO=false;
             Env = new EnvAdsr(AmpEnvAttack, AmpEnvDecay, AmpEnvSustainTime, AmpEnvSustainLevel, AmpEnvRelease);
             root = new FlowPane();
             scene = new Scene(root, 1280, 700);
@@ -179,8 +190,20 @@ public class Synthesizer extends Application {
                         System.out.println("Hey, input some numbers");
                        
                     } else {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                       
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+    
+                       //amp = Double.parseDouble(fNameFldAmp.getText());
+                      //  freq1 = Double.parseDouble(fNameFld.getText());
                         addOscillator(freq1, amp);
                         try {
                             
@@ -192,8 +215,8 @@ public class Synthesizer extends Application {
                     }
                     if (!oscList.isEmpty()) {
 
-                        System.out.print(oscList.size());
-                        System.out.print("frequency   " + oscList.get(oscList.size() - 1).getFreq() + "   " + "    Amp" + oscList.get(oscList.size() - 1).getAmp());
+                      //  System.out.print(oscList.size());
+                       // System.out.print("frequency   " + oscList.get(oscList.size() - 1).getFreq() + "   " + "    Amp" + oscList.get(oscList.size() - 1).getAmp());
                     }
 
                 }
@@ -212,15 +235,56 @@ public class Synthesizer extends Application {
                          FFToutput = fft.doFFT(synthesisOsc(oscList), 44100);
                          
                          MagnitudeFFT = SpecMagnitude(FFToutput);
-                         peaksOut= Peaks.findP(MagnitudeFFT);
+                       //  peaksOut= Peaks.findP(MagnitudeFFT);
                        // System.arraycopy(peaksOut[0], 0, magPeaks, 0, 441000);
-                         
+                          if(IIROneWeight){
+                        filters = new  Filters(finalOut);
+                        filters.filterIIROneWeight();
+                        finalOut = filters.getFiltered();
+                        }
+                        if(IIR){
+                        filters = new  Filters(finalOut);
+                        filters.filterIIR(weights);
+                        finalOut = filters.getFiltered();
+                        }
+                        if(FIR){
+                        filters = new  Filters(finalOut);
+                        filters.filterFIR();
+                        finalOut = filters.getFiltered();
+                        }
+                        if(DIO == true){
+                        for (int i = 0; i < finalOut.length-1; i++) {
+                            if(finalOut[i]<=0)
+                                finalOut[i]=finalOut[i]*(-1);
+                            finalOut[i]= finalOut[i];
+                        }
+                   
+                      //  stdAudio.play(finalOut);
+                        }
                         
-                       //  DisplayCharts(finalOut,magPeaks);
-                         
+                        if(SINLFO==true){
+                        if(finalOut!= null){
+                         finalOut=lfo.multArray(finalOut, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                        
+                         }
+                         }
+                        
+                        if(TRILFO==true){
+                        if(finalOut!= null){
+                         finalOut=lfo.multArray(finalOut, new Tri(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+              
+                         }
+                         }
+                        if(SAWLFO==true){
+                        if(finalOut!= null){
+                         finalOut=lfo.multArray(finalOut, new Saw(ampLfoSli.getValue(), freqLfoSli.getValue(),0.15).output());
+                    
+                         }
+                         }
+                        
+                         DisplayCharts(finalOut,MagnitudeFFT);
                          stdAudio.play(finalOut);
-                        
-                         System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
+                        // System.out.println("=" + Env.getAttack() + " dec=" + Env.getDecay() + " susLevel=" + Env.getSustainLevel() + " Sustime=" + Env.getSustainTime());
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -258,8 +322,9 @@ public class Synthesizer extends Application {
                             
                         }
                         hBoxSlider.getChildren().clear();
-                        for (int i = 0; i < freqAxis.length; i++) {
+                        for (int i = 0; i < 120; i++) {
                             addOscillator(peaksOut[1][i],peaksOut[0][i]);
+                           // System.out.println("freq    "+peaksOut[0][i]);
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -295,9 +360,48 @@ public class Synthesizer extends Application {
                         
                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
                         MagnitudeFFT = SpecMagnitude(FFToutput);
+                        peaksOut= Peaks.findP(MagnitudeFFT);
+                        if(DIO == true){
+                        for (int i = 0; i < waveformArray.length; i++) {
+                            if(waveformArray[i]<=0)
+                                waveformArray[i]=waveformArray[i]*(-1);
+                            
+                            waveformArray[i]= waveformArray[i];
+                          //  System.out.println(waveformArray[i]);
+                        }
+                       /* double[] peaksOutWave = new double[44100];
+                        
+                        for (int i = 0; i < 44100; i++) {
+                            peaksOutWave[i]= peaksOut[1][i];
+                        }*/
+                        
+                        }
+                        
+                        if(SINLFO==true){
+                        if(waveformArray!= null){
+                         waveformArray=lfo.multArray(waveformArray, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                      
+                         }
+                         }
+                        
+                        if(TRILFO==true){
+                            
+                        if(waveformArray!= null){
+                         waveformArray=lfo.multArray(waveformArray, new Tri(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
+                          
+                            System.out.println("waveform length     "+waveformArray.length);
+                        }
+                         }
+                        if(SAWLFO==true){
+                        if(waveformArray!= null){
+                         waveformArray=lfo.multArray(waveformArray, new Saw(ampLfoSli.getValue(), freqLfoSli.getValue(),0.15).output());
+                    
+                         }
+                         }
+                        
                         DisplayCharts(waveformArray,MagnitudeFFT);
                         stdAudio.play(waveformArray);
-                    
+                        
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -331,6 +435,19 @@ public class Synthesizer extends Application {
                     try {
                         DisplayCharts(zeroArray(),zeroArray());
                          oscBankList.clear();
+                         for (int i = 0; i < waveformArray.length; i++) {
+                            if(waveformArray[i]<=0)
+                                waveformArray[i]=waveformArray[i]*(1);
+                            
+                            waveformArray[i]= waveformArray[i];
+                          //  System.out.println(waveformArray[i]);
+                        }
+                       /* double[] peaksOutWave = new double[44100];
+                        
+                        for (int i = 0; i < 44100; i++) {
+                            peaksOutWave[i]= peaksOut[1][i];
+                        }*/
+                         DIO =false;
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -338,8 +455,64 @@ public class Synthesizer extends Application {
             });
             clearWaveform.setId("waveFormPlay");
             
+            diode = new Button();
+            diode.setText("Diode");
+            diode.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        
+                        if(DIO==false)
+                        DIO=true;
+                       
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            diode.setId("filter");
+            
+            saveAdditive = new Button();
+            saveAdditive.setText("saveAddit");
+            saveAdditive.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {// Instantiate a Date object
+                    
+                       stdAudio.save(date.toString(), finalOut);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            saveAdditive.setId("sinusoid");
+            
+            
+            saveWave = new Button();
+            saveWave.setText("saveWave");
+            saveWave.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {// Instantiate a Date object
+                    
+                       stdAudio.save(date.toString(), waveformArray);
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            saveWave.setId("waveFormPlay");
+            
+            
             System.out.println("width"+ ampEnvPane().getWidth()+"height"+ampEnvPane().getHeight());
-            ampFilter.getChildren().addAll(ampEnvPane(), filterPane(), lfoPane(),clearScroll,clearWaveform,addRes());
+            GridPane savenSuch = new GridPane();
+            savenSuch.setHgap(5);
+            savenSuch.setVgap(5);
+            savenSuch.add(clearScroll, 0 , 0);
+            savenSuch.add(clearWaveform, 0 , 1);
+            savenSuch.add(saveAdditive, 1 , 0);
+            savenSuch.add(saveWave, 1 , 1);
+            ampFilter.getChildren().addAll(ampEnvPane(), filterPane(), lfoPane(),savenSuch,addRes());
             borderPane.setTop(addHBoxTop());
             borderPane.setCenter(oscillatorPane());
             borderPane.setBottom(addScrollPane());
@@ -565,7 +738,7 @@ public class Synthesizer extends Application {
                 }
             });
             
-            freqLfoSli = new Slider(1,999,500);
+            freqLfoSli = new Slider(0,20,5);
                    lfoFreq = new Label();
                    lfoFreq.setText(String.format("%.2f",.0));
                    lfoFreq.setMinWidth(60);
@@ -602,32 +775,21 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                         FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         lfoTemp=lfo.multArray(waveformArray, new Sine(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
-                         DisplayCharts(lfoTemp,MagnitudeFFT);
-                         
-                         stdAudio.play(waveformArray);
+                          SINLFO=true;
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
-           
             sineLfo.setId("lfos");
 
             squareLfo = new Button();
-            squareLfo.setText("Square");
+            squareLfo.setText("Tri");
             squareLfo.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         lfoTemp=lfo.multArray(waveformArray, new Square(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
-                         DisplayCharts(lfoTemp,MagnitudeFFT);
-                         
-                         stdAudio.play(lfoTemp);
+                        TRILFO=true;
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -637,17 +799,12 @@ public class Synthesizer extends Application {
             squareLfo.setId("lfos");
             
             primeLfo = new Button();
-            primeLfo.setText("Prime");
+            primeLfo.setText("Saw");
             primeLfo.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                       FFToutput = fft.doFFT(synthesisOsc(oscBankList), 44100);
-                         MagnitudeFFT = SpecMagnitude(FFToutput);
-                         lfoTemp=lfo.multArray(waveformArray, new Prime(ampLfoSli.getValue(), freqLfoSli.getValue(),1).output());
-                         DisplayCharts(lfoTemp,MagnitudeFFT);
-                         
-                         stdAudio.play(lfoTemp);
+                         SAWLFO=true;
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -672,7 +829,7 @@ public class Synthesizer extends Application {
          GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
-            
+            filterPane.add(diode, 0, 1);
 
             filterFIR = new Button();
             filterFIR.setText("FIR");
@@ -770,9 +927,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         
                         oscBankList.add(new Sine( amp,freq1));
                         
@@ -789,8 +953,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         oscBankList.add(new Even(amp, freq1));
                         
                         
@@ -809,8 +981,16 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {
 
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                       String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         oscBankList.add(new Square(amp, freq1));
 
                     } catch (Exception ex) {
@@ -825,8 +1005,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                       amp = Double.parseDouble(fNameFldAmp.getText());
-                       freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                        oscBankList.add(new Saw( amp,freq1,44100));
                        
                     } catch (Exception ex) {
@@ -842,9 +1030,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
-                        //oscBankList.add(new Triangle(amp, freq1,.15));
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         oscBankList.add(new Tri(amp, freq1));
                            
                     } catch (Exception ex) {
@@ -860,8 +1055,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                           
                         oscBankList.add(new Pwm(amp, freq1, .15));
                     } catch (Exception ex) {
@@ -937,8 +1140,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         oscBankList.add(new Prime(amp, freq1,1));
                        
 ;
@@ -954,8 +1165,16 @@ public class Synthesizer extends Application {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
-                        amp = Double.parseDouble(fNameFldAmp.getText());
-                        freq1 = Double.parseDouble(fNameFld.getText());
+                        String txt = new String(fNameFld.getText());
+                        String txt1 = new String(fNameFldAmp.getText());
+                        ScriptEngineManager mgr = new ScriptEngineManager();
+                        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                        try {
+                         freq1=(double) engine.eval(txt);
+                         amp=(double) engine.eval(txt1);
+                        } catch (ScriptException ex) {
+                            Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         oscBankList.add(new Noise());
                         
                     } catch (Exception ex) {
