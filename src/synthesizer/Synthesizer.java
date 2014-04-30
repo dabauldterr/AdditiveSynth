@@ -43,7 +43,7 @@ import javax.script.ScriptException;
 
 
 public class Synthesizer extends Application {
-    boolean FIR,IIR,IIROneWeight,DIO,SINLFO,TRILFO,SAWLFO;
+    boolean FIR,IIR,IIROneWeight,DIO,DIO2,SINLFO,TRILFO,SAWLFO;
     int freq;
     double AmpEnvAttack=.5;
     double AmpEnvDecay=.5;
@@ -71,7 +71,7 @@ public class Synthesizer extends Application {
           susLevLabel,susTimeLabel,relLabel,
           resLabel,firstWeightlabel,secondWeightlabel,lfoFreq;
     Button loadBtn,loadOsc,play,sine,pwm,
-           even,saw,square,triangle,diode,
+           even,saw,square,triangle,fullWave,halfWave,
            triangleShift,sawTriangle,trapezoid,
            pwmShift,prime,noise,saveAdditive,saveWave,
            playWavefrom,filterFIR,filterIIR,
@@ -104,6 +104,7 @@ public class Synthesizer extends Application {
             IIR= false;
             IIROneWeight= false;
             DIO=false;
+            DIO2=false;
             SINLFO=false;
             TRILFO=false;
             SAWLFO=false;
@@ -258,8 +259,14 @@ public class Synthesizer extends Application {
                                 finalOut[i]=finalOut[i]*(-1);
                             finalOut[i]= finalOut[i];
                         }
-                   
-                      //  stdAudio.play(finalOut);
+                        }
+                        
+                        if(DIO2 == true){
+                        for (int i = 0; i < finalOut.length-1; i++) {
+                            if(finalOut[i]<=0)
+                                finalOut[i]=finalOut[i]*(0);
+                            finalOut[i]= finalOut[i];
+                        }
                         }
                         
                         if(SINLFO==true){
@@ -272,7 +279,7 @@ public class Synthesizer extends Application {
                         if(TRILFO==true){
                         if(finalOut!= null){
                          finalOut=lfo.multArray(finalOut, new Tri(ampLfoSli.getValue(), freqLfoSli.getValue()).output());
-              
+                            
                          }
                          }
                         if(SAWLFO==true){
@@ -376,6 +383,13 @@ public class Synthesizer extends Application {
                         }*/
                         
                         }
+                        if(DIO2 == true){
+                        for (int i = 0; i < waveformArray.length-1; i++) {
+                            if(waveformArray[i]<=0)
+                                waveformArray[i]=waveformArray[i]*(0);
+                            waveformArray[i]= waveformArray[i];
+                        }
+                        }
                         
                         if(SINLFO==true){
                         if(waveformArray!= null){
@@ -455,9 +469,9 @@ public class Synthesizer extends Application {
             });
             clearWaveform.setId("waveFormPlay");
             
-            diode = new Button();
-            diode.setText("Diode");
-            diode.setOnAction(new EventHandler<ActionEvent>() {
+            fullWave = new Button();
+            fullWave.setText("FullWave");
+            fullWave.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
                     try {
@@ -470,7 +484,24 @@ public class Synthesizer extends Application {
                     }
                 }
             });
-            diode.setId("filter");
+            fullWave.setId("filter");
+            
+            halfWave = new Button();
+            halfWave.setText("HalfWave");
+            halfWave.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    try {
+                        
+                        if(DIO2==false)
+                        DIO2=true;
+                       
+                    } catch (Exception ex) {
+                        Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            halfWave.setId("filter");
             
             saveAdditive = new Button();
             saveAdditive.setText("saveAddit");
@@ -479,7 +510,7 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {// Instantiate a Date object
                     
-                       stdAudio.save(date.toString(), finalOut);
+                       stdAudio.save(date.toString()+".wav", finalOut);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -495,7 +526,7 @@ public class Synthesizer extends Application {
                 public void handle(ActionEvent event) {
                     try {// Instantiate a Date object
                     
-                       stdAudio.save(date.toString(), waveformArray);
+                       StdAudio.save(date.toString()+".wav", waveformArray);
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -604,7 +635,7 @@ public class Synthesizer extends Application {
     public VBox addRes(){
         
     VBox vbox = new VBox();
-            resolution = new Slider(1,99,99);
+            resolution = new Slider(20,99,95);
             
             resLabel = new Label();
             resLabel.setMinWidth(60);
@@ -722,7 +753,7 @@ public class Synthesizer extends Application {
             lfo.setAmplitude(.5);
             lfo.setFrequency(400);
             
-            ampLfoSli = new Slider(0, 1, .5);
+            ampLfoSli = new Slider(0.1, 1, .5);
                    lfoAmp = new Label();
                    lfoAmp.setText(String.format("%.2f", .5));
             ampLfoSli.setBlockIncrement(15);
@@ -738,7 +769,7 @@ public class Synthesizer extends Application {
                 }
             });
             
-            freqLfoSli = new Slider(0,20,5);
+            freqLfoSli = new Slider(3,20,5);
                    lfoFreq = new Label();
                    lfoFreq.setText(String.format("%.2f",.0));
                    lfoFreq.setMinWidth(60);
@@ -829,8 +860,8 @@ public class Synthesizer extends Application {
          GridPane filterPane = new GridPane();
             filterPane.setHgap(5);
             filterPane.setVgap(5);
-            filterPane.add(diode, 0, 1);
-
+            filterPane.add(fullWave, 0, 1);
+            filterPane.add(halfWave, 0, 2);
             filterFIR = new Button();
             filterFIR.setText("FIR");
             filterFIR.setOnAction(new EventHandler<ActionEvent>() {
@@ -1175,7 +1206,7 @@ public class Synthesizer extends Application {
                         } catch (ScriptException ex) {
                             Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        oscBankList.add(new Noise());
+                        oscBankList.add(new Noise(amp,freq1));
                         
                     } catch (Exception ex) {
                         Logger.getLogger(Synthesizer.class.getName()).log(Level.SEVERE, null, ex);
